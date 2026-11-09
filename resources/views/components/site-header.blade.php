@@ -47,7 +47,7 @@
             <a href="{{ route('checkout') }}" title="Cart" class="relative text-white hover:text-gold-400 transition">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121 0 2.1-.746 2.364-1.836l1.07-4.42a1.125 1.125 0 0 0-1.09-1.394H6.912m0 0L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
                 @if($count > 0)
-                    <span class="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[11px] font-bold text-brand-900">{{ $count }}</span>
+                    <span data-cart-count class="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[11px] font-bold text-brand-900">{{ $count }}</span>
                 @endif
             </a>
 

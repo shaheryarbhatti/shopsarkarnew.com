@@ -151,7 +151,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="relative">
                                     <img src="{{ $line->product->thumbnail_url }}" class="h-16 w-16 rounded-xl object-cover ring-1 ring-black/5">
-                                    <span class="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-900 px-1.5 text-xs font-bold text-gold-300 ring-2 ring-white">{{ $line->qty }}</span>
+                                    <span data-qty-badge="{{ $line->product->id }}" class="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-900 px-1.5 text-xs font-bold text-gold-300 ring-2 ring-white">{{ $line->qty }}</span>
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-semibold text-ink">{{ $line->product->name }}</p>
@@ -159,9 +159,9 @@
                                     <div class="mt-1.5 flex items-center gap-3">
                                         {{-- Quantity stepper --}}
                                         <div class="flex items-center rounded-full border border-gray-300">
-                                            <button type="button" onclick="cartQty({{ $line->product->id }}, {{ $line->qty - 1 }})" @disabled($line->qty <= 1) class="px-2.5 py-1 text-base leading-none text-gray-500 transition hover:text-ink disabled:opacity-40">−</button>
-                                            <span class="w-7 text-center text-sm font-semibold">{{ $line->qty }}</span>
-                                            <button type="button" onclick="cartQty({{ $line->product->id }}, {{ $line->qty + 1 }})" class="px-2.5 py-1 text-base leading-none text-gray-500 transition hover:text-ink">+</button>
+                                            <button type="button" data-minus="{{ $line->product->id }}" onclick="cartQty({{ $line->product->id }}, -1)" @disabled($line->qty <= 1) class="px-2.5 py-1 text-base leading-none text-gray-500 transition hover:text-ink disabled:opacity-40">−</button>
+                                            <span data-qty="{{ $line->product->id }}" class="w-7 text-center text-sm font-semibold">{{ $line->qty }}</span>
+                                            <button type="button" onclick="cartQty({{ $line->product->id }}, 1)" class="px-2.5 py-1 text-base leading-none text-gray-500 transition hover:text-ink">+</button>
                                         </div>
                                         <button type="button"
                                                 onclick="cartRemove({{ $line->product->id }})"
@@ -171,19 +171,19 @@
                                         </button>
                                     </div>
                                 </div>
-                                <p class="text-sm font-bold text-ink">{{ money($line->subtotal) }}</p>
+                                <p data-line-subtotal="{{ $line->product->id }}" class="text-sm font-bold text-ink">{{ money($line->subtotal) }}</p>
                             </div>
                         @endforeach
                     </div>
 
                     <div class="border-t border-gray-100 px-6 py-4">
                         <dl class="space-y-2.5 text-sm">
-                            <div class="flex justify-between"><dt class="text-gray-500">Subtotal</dt><dd class="font-medium text-ink">{{ money($totals['subtotal']) }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-gray-500">Subtotal</dt><dd data-cart-subtotal class="font-medium text-ink">{{ money($totals['subtotal']) }}</dd></div>
 
                             @if($totals['shipping_enabled'])
                                 <div class="flex justify-between">
                                     <dt class="text-gray-500">Shipping</dt>
-                                    <dd class="font-medium">
+                                    <dd data-cart-shipping class="font-medium">
                                         @if($totals['free_shipping'] || $totals['shipping'] <= 0)
                                             <span class="text-emerald-600">FREE</span>
                                         @else
@@ -194,7 +194,7 @@
                             @endif
 
                             @if($totals['tax_enabled'])
-                                <div class="flex justify-between"><dt class="text-gray-500">{{ $totals['tax_label'] }} ({{ rtrim(rtrim(number_format($totals['tax_rate'],2),'0'),'.') }}%)</dt><dd class="font-medium text-ink">{{ money($totals['tax']) }}</dd></div>
+                                <div class="flex justify-between"><dt class="text-gray-500">{{ $totals['tax_label'] }} ({{ rtrim(rtrim(number_format($totals['tax_rate'],2),'0'),'.') }}%)</dt><dd data-cart-tax class="font-medium text-ink">{{ money($totals['tax']) }}</dd></div>
                             @endif
                         </dl>
                     </div>
@@ -204,7 +204,7 @@
                         <div aria-hidden="true" class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gold-500/15 blur-2xl"></div>
                         <div class="relative flex items-center justify-between">
                             <span class="text-base font-semibold text-white">Total</span>
-                            <span class="font-serif text-3xl font-bold text-gold-400">{{ money($totals['total']) }}</span>
+                            <span data-cart-total class="font-serif text-3xl font-bold text-gold-400">{{ money($totals['total']) }}</span>
                         </div>
                         <button type="submit" class="btn-gold group mt-5 w-full py-3.5 text-base">
                             <span>Place Order</span>
@@ -248,17 +248,56 @@
         @endforeach
 
         <script>
-            // Programmatic .submit() does NOT fire the submit event, so show the
-            // global loader manually before submitting the cart forms.
-            function showLoader() {
-                document.getElementById('page-loader')?.classList.add('show');
-            }
-            function cartQty(id, q) {
-                if (q < 1) return;            // use Remove to delete the item
-                document.getElementById('qty-' + id).value = q;
+            function showLoader() { document.getElementById('page-loader')?.classList.add('show'); }
+            function hideLoader() { document.getElementById('page-loader')?.classList.remove('show'); }
+
+            // Quantity +/- via AJAX — updates totals instantly, NO page reload.
+            function cartQty(id, delta) {
+                const span = document.querySelector('[data-qty="' + id + '"]');
+                if (!span) return;
+                const next = (parseInt(span.textContent, 10) || 1) + delta;
+                if (next < 1) return;                       // use Remove to delete
+
+                const form  = document.getElementById('update-' + id);
+                const token = form?.querySelector('input[name=_token]')?.value;
+
                 showLoader();
-                document.getElementById('update-' + id).submit();
+                fetch(form.getAttribute('action'), {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({ product_id: id, quantity: next }),
+                })
+                .then(r => r.ok ? r.json() : Promise.reject(r))
+                .then(applyCartUpdate)
+                .catch(() => { window.location.reload(); })  // graceful fallback
+                .finally(hideLoader);
             }
+
+            function applyCartUpdate(d) {
+                if (d.empty) { window.location.reload(); return; }
+                const id = d.product_id;
+                document.querySelectorAll('[data-qty="' + id + '"], [data-qty-badge="' + id + '"]')
+                    .forEach(el => el.textContent = d.qty);
+                const minus = document.querySelector('[data-minus="' + id + '"]');
+                if (minus) minus.disabled = d.qty <= 1;
+                const set = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
+                set('[data-line-subtotal="' + id + '"]', d.line_subtotal);
+                set('[data-cart-subtotal]', d.subtotal);
+                set('[data-cart-total]', d.total);
+                if (d.tax_enabled) set('[data-cart-tax]', d.tax);
+                const ship = document.querySelector('[data-cart-shipping]');
+                if (ship) ship.innerHTML = d.shipping_free
+                    ? '<span class="text-emerald-600">FREE</span>'
+                    : '<span class="text-ink">' + d.shipping + '</span>';
+                document.querySelectorAll('[data-cart-count]').forEach(el => el.textContent = d.count);
+            }
+
+            // Remove still reloads (with the loader for feedback).
             function cartRemove(id) {
                 showLoader();
                 document.getElementById('remove-' + id).submit();

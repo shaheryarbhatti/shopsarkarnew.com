@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -30,7 +31,7 @@ class CartController extends Controller
         return back()->with('success', $product->name . ' added to cart.');
     }
 
-    public function update(Request $request)
+    public function update(Request $request, PricingService $pricing)
     {
         $data = $request->validate([
             'product_id' => ['required', 'integer'],
@@ -38,6 +39,27 @@ class CartController extends Controller
         ]);
 
         cart()->update($data['product_id'], $data['quantity']);
+
+        // AJAX (quantity +/- on checkout): return fresh totals, no page reload.
+        if ($request->wantsJson()) {
+            $items  = cart()->items();
+            $line   = $items->first(fn ($l) => $l->product->id == $data['product_id']);
+            $totals = $pricing->totals(cart()->subtotal());
+
+            return response()->json([
+                'product_id'    => (int) $data['product_id'],
+                'qty'           => $line?->qty ?? 0,
+                'line_subtotal' => money($line?->subtotal ?? 0),
+                'subtotal'      => money($totals['subtotal']),
+                'shipping_free' => $totals['free_shipping'] || $totals['shipping'] <= 0,
+                'shipping'      => money($totals['shipping']),
+                'tax'           => money($totals['tax']),
+                'tax_enabled'   => $totals['tax_enabled'],
+                'total'         => money($totals['total']),
+                'count'         => cart()->count(),
+                'empty'         => cart()->isEmpty(),
+            ]);
+        }
 
         return back()->with('success', 'Cart updated.');
     }
