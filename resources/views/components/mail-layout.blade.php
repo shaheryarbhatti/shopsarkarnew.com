@@ -4,6 +4,12 @@
     $phone = setting('contact_phone');
     $email = setting('contact_email', 'support@shopsarkar.com');
     $site  = rtrim(config('app.url'), '/');
+
+    // Absolute logo URL (email clients need a full URL, not a relative path).
+    $logoRel = setting_file('site_logo');
+    $logoUrl = $logoRel
+        ? (\Illuminate\Support\Str::startsWith($logoRel, ['http://', 'https://']) ? $logoRel : $site . $logoRel)
+        : null;
 @endphp
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -26,10 +32,13 @@
 
                     {{-- Header --}}
                     <tr>
-                        <td align="center" style="background-color:#081e18; padding:34px 28px 30px;">
-                            <div style="font-family:Georgia,'Times New Roman',serif; font-size:28px; font-weight:bold; letter-spacing:5px; color:#c9a24b; text-transform:uppercase;">{{ $name }}</div>
-                            <div style="margin-top:6px; height:1px; width:60px; background-color:rgba(201,162,75,.45); display:inline-block;"></div>
-                            <div style="margin-top:10px; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,.55); text-transform:uppercase;">Luxury Fragrances</div>
+                        <td align="center" style="background-color:#081e18; padding:30px 28px;">
+                            @if($logoUrl)
+                                <img src="{{ $logoUrl }}" alt="{{ $name }}" height="66" style="height:66px; width:auto; max-width:240px; display:inline-block; border:0; outline:none; text-decoration:none;">
+                            @else
+                                <div style="font-family:Georgia,'Times New Roman',serif; font-size:28px; font-weight:bold; letter-spacing:5px; color:#c9a24b; text-transform:uppercase;">{{ $name }}</div>
+                            @endif
+                            <div style="margin-top:12px; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,.55); text-transform:uppercase;">Luxury Fragrances</div>
                         </td>
                     </tr>
 
