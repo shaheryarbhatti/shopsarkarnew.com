@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewOrderNotification;
+use App\Mail\OrderPlaced;
 use App\Models\Earning;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -12,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -123,7 +126,31 @@ class CheckoutController extends Controller
         cart()->clear();
         session()->forget('ref_code');
 
+        // Send confirmation emails — never let a mail failure break the order.
+        $this->sendOrderEmails($order);
+
         return redirect()->route('order.success', $order->order_number);
+    }
+
+    /** Email the customer a confirmation and the store admin a new-order alert. */
+    protected function sendOrderEmails(Order $order): void
+    {
+        try {
+            $order->loadMissing('items');
+
+            // Customer confirmation
+            if ($order->email) {
+                Mail::to($order->email)->send(new OrderPlaced($order));
+            }
+
+            // Admin notification (store contact email, falling back to the from address)
+            $adminEmail = setting('contact_email') ?: config('mail.from.address');
+            if ($adminEmail) {
+                Mail::to($adminEmail)->send(new NewOrderNotification($order));
+            }
+        } catch (\Throwable $e) {
+            report($e); // logged, but the customer still gets their success page
+        }
     }
 
     /** Find an existing user by email or create a lightweight account and log them in. */
