@@ -11,23 +11,23 @@
         @csrf
 
         <div>
-            <label class="label">Full Name</label>
+            <label class="label">Full Name <span class="urdu font-normal text-gray-400">— پورا نام</span></label>
             <input name="name" class="input" required autofocus value="{{ old('name') }}" placeholder="Your name">
         </div>
 
         <div>
-            <label class="label">Email Address</label>
+            <label class="label">Email Address <span class="urdu font-normal text-gray-400">— ای میل</span></label>
             <input type="email" name="email" class="input" required value="{{ old('email') }}" placeholder="you@example.com">
         </div>
 
         <div>
-            <label class="label">Phone <span class="font-normal text-gray-400">(optional)</span></label>
+            <label class="label">Phone <span class="font-normal text-gray-400">(optional)</span> <span class="urdu font-normal text-gray-400">— فون نمبر</span></label>
             <input name="phone" class="input" value="{{ old('phone') }}" placeholder="03XX-XXXXXXX">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label class="label">Password</label>
+                <label class="label">Password <span class="urdu font-normal text-gray-400">— پاس ورڈ</span></label>
                 <div class="relative">
                     <input :type="show ? 'text' : 'password'" name="password" class="input pr-10" required placeholder="••••••••">
                     <button type="button" @click="show=!show" :aria-label="show ? 'Hide password' : 'Show password'" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <div>
-                <label class="label">Confirm</label>
+                <label class="label">Confirm <span class="urdu font-normal text-gray-400">— تصدیق</span></label>
                 <div class="relative">
                     <input :type="show ? 'text' : 'password'" name="password_confirmation" class="input pr-10" required placeholder="••••••••">
                     <button type="button" @click="show=!show" :aria-label="show ? 'Hide password' : 'Show password'" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
