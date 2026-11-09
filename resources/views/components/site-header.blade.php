@@ -15,7 +15,7 @@
     class="top-0 z-50 w-full transition-colors duration-300 {{ $transparent ? 'fixed' : 'sticky bg-brand-900 shadow-md' }}"
     :class="{{ $scrollClass }}">
 
-    <div class="container-x flex h-20 items-center justify-between">
+    <div class="relative container-x flex h-20 items-center justify-between">
         {{-- Logo (left) --}}
         <a href="{{ route('home') }}" class="flex items-center gap-3">
             @if($logo)
@@ -25,15 +25,12 @@
             @endif
         </a>
 
-        {{-- Nav (center) --}}
-        <nav class="hidden items-center gap-8 md:flex">
+        {{-- Nav (centered) --}}
+        <nav class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
             <a href="{{ route('home') }}" class="text-sm font-medium text-white hover:text-gold-400 transition">Home</a>
             @if(setting_bool('affiliate_enabled', true))
                 <a href="{{ route('earn') }}" class="text-sm font-medium text-white hover:text-gold-400 transition">Earn With Us</a>
             @endif
-            @foreach($footerPages->take(2) as $p)
-                <a href="{{ route('page.show', $p->slug) }}" class="text-sm font-medium text-white hover:text-gold-400 transition">{{ $p->title }}</a>
-            @endforeach
         </nav>
 
         {{-- Right: account + cart --}}
