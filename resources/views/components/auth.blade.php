@@ -74,7 +74,12 @@
         </div>
 
         {{-- ============ Form panel ============ --}}
-        <div class="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/2">
+        <div class="relative flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/2">
+            {{-- Mobile: back to store (top) --}}
+            <a href="{{ route('home') }}" class="absolute left-5 top-5 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition hover:text-gold-600 lg:hidden">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+                Back to store
+            </a>
             <div class="w-full max-w-md reveal" style="animation-delay:.15s">
 
                 {{-- Mobile logo --}}
