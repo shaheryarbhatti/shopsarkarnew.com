@@ -161,21 +161,29 @@
 
                 {{-- Add to cart --}}
                 @if($product->isInStock())
-                    <form method="POST" action="{{ route('cart.add') }}" x-data="{ qty: 1 }" class="flex flex-wrap items-center gap-4">
+                    <form method="POST" action="{{ route('cart.add') }}" x-data="{ qty: 1 }" class="space-y-4">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" name="quantity" :value="qty">
 
-                        {{-- Quantity stepper --}}
-                        <div class="flex items-center rounded-full border border-gray-300">
-                            <button type="button" @click="qty = Math.max(1, qty-1)" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">−</button>
-                            <span class="w-10 text-center font-semibold" x-text="qty"></span>
-                            <button type="button" @click="qty++" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">+</button>
+                        <div class="flex flex-wrap items-center gap-4">
+                            {{-- Quantity stepper --}}
+                            <div class="flex items-center rounded-full border border-gray-300">
+                                <button type="button" @click="qty = Math.max(1, qty-1)" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">−</button>
+                                <span class="w-10 text-center font-semibold" x-text="qty"></span>
+                                <button type="button" @click="qty++" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">+</button>
+                            </div>
+
+                            <button type="submit" name="action" value="cart" class="btn-gold group flex-1 min-w-[180px] px-8 py-3.5 text-base">
+                                <span>Add to Cart</span>
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121 0 2.1-.746 2.364-1.836l1.07-4.42a1.125 1.125 0 0 0-1.09-1.394H6.912m0 0L5.106 5.272"/></svg>
+                            </button>
                         </div>
 
-                        <button type="submit" class="btn-gold group flex-1 min-w-[200px] px-8 py-3.5 text-base">
-                            <span>Add to Cart</span>
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121 0 2.1-.746 2.364-1.836l1.07-4.42a1.125 1.125 0 0 0-1.09-1.394H6.912m0 0L5.106 5.272"/></svg>
+                        {{-- Shop Now → adds to cart and goes straight to checkout --}}
+                        <button type="submit" name="action" value="buy" class="flex w-full items-center justify-center gap-2 rounded-full bg-brand-900 px-8 py-3.5 text-base font-semibold text-gold-300 shadow-sm transition hover:bg-brand-800">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg>
+                            Shop Now
                         </button>
                     </form>
                 @else

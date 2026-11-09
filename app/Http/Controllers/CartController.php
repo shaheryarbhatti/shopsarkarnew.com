@@ -22,6 +22,11 @@ class CartController extends Controller
 
         cart()->add($product->id, (int) ($data['quantity'] ?? 1));
 
+        // "Shop Now" adds the item and goes straight to checkout.
+        if ($request->input('action') === 'buy') {
+            return redirect()->route('checkout');
+        }
+
         return back()->with('success', $product->name . ' added to cart.');
     }
 
