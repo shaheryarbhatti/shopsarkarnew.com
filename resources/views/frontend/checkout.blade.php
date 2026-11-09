@@ -1,43 +1,5 @@
 <x-storefront title="Checkout" footer="full" :noindex="true">
 
-    {{-- ===== Full-width hero header ===== --}}
-    <section class="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-900 to-brand-900 py-12 text-white">
-        <div aria-hidden="true" class="absolute inset-0 opacity-[0.06]"
-             style="background-image: radial-gradient(circle at 1px 1px, #c9a24b 1px, transparent 0); background-size: 22px 22px;"></div>
-        <div aria-hidden="true" class="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gold-500/10 blur-3xl"></div>
-        <div aria-hidden="true" class="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl"></div>
-
-        <div class="relative w-full px-4 sm:px-6 lg:px-12">
-            <nav class="mb-4 flex items-center gap-2 text-sm text-gold-200/60">
-                <a href="{{ route('home') }}" class="transition hover:text-gold-300">Home</a>
-                <span>/</span>
-                <span class="text-gold-200">Checkout</span>
-            </nav>
-            <h1 class="font-serif text-4xl font-bold text-gold-400">Secure Checkout</h1>
-            <p class="mt-2 max-w-xl text-white/60">Almost there — just confirm your details and place your order.</p>
-
-            {{-- Progress steps --}}
-            <div class="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-                <span class="inline-flex items-center gap-2 text-gold-300">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-gold-500/20 text-xs font-bold text-gold-300 ring-1 ring-gold-400/40">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                    </span>
-                    Cart
-                </span>
-                <span class="h-px w-8 bg-white/15"></span>
-                <span class="inline-flex items-center gap-2 font-semibold text-white">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-gold-500 text-xs font-bold text-brand-900">2</span>
-                    Details
-                </span>
-                <span class="h-px w-8 bg-white/15"></span>
-                <span class="inline-flex items-center gap-2 text-white/40">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-xs font-bold">3</span>
-                    Done
-                </span>
-            </div>
-        </div>
-    </section>
-
     <section class="w-full px-4 py-10 sm:px-6 lg:px-12 lg:py-14">
 
         @if(cart()->isEmpty())
