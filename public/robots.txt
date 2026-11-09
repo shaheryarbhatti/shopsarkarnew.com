@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /*?ref=
+
+Sitemap: https://shopsarkar.com/sitemap.xml

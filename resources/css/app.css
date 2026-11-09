@@ -1,0 +1,289 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* English display + body faces (variable, latin) — hosted locally */
+@font-face {
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('/fonts/PlayfairDisplay-latin.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Inter-latin.woff2') format('woff2');
+}
+
+/* ----------------------------------------------------------------
+   Local Nastaliq (Urdu) font — hosted locally, no external CDN.
+   Swap the files in /public/fonts to use a specific Noori face.
+----------------------------------------------------------------- */
+@font-face {
+    font-family: 'Noori Nastaleeq';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('/fonts/NotoNastaliqUrdu-arabic.woff2') format('woff2');
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+200C-200E, U+2010-2011,
+        U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+    font-family: 'Noori Nastaleeq';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('/fonts/NotoNastaliqUrdu-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153;
+}
+
+@theme {
+    --font-sans: 'Inter', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --font-urdu: 'Noori Nastaleeq', serif;
+
+    /* Luxury brand palette (emerald + champagne gold) */
+    --color-brand-50:  #f3f7f5;
+    --color-brand-100: #dce8e2;
+    --color-brand-300: #8bab9d;
+    --color-brand-500: #2f6b55;
+    --color-brand-600: #1f5141;
+    --color-brand-700: #123b2e;
+    --color-brand-800: #0d2e24;
+    --color-brand-900: #081e18;
+
+    --color-gold-200: #ecdcb3;
+    --color-gold-300: #e2c98d;
+    --color-gold-400: #d4af6a;
+    --color-gold-500: #c9a24b;
+    --color-gold-600: #a9843a;
+
+    --color-cream: #f6f1e7;
+    --color-ink: #1c1c1a;
+}
+
+@layer base {
+    html { scroll-behavior: smooth; }
+    body { @apply bg-cream text-ink font-sans antialiased; }
+    h1, h2, h3, h4 { @apply font-serif; }
+    [dir='rtl'], .font-urdu { font-family: var(--font-urdu); }
+    .urdu {
+        font-family: var(--font-urdu);
+        direction: rtl;
+        line-height: 2.4;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold tracking-wide transition-all duration-300 cursor-pointer;
+    }
+    .btn-gold {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold tracking-wide transition-all duration-300 cursor-pointer
+            bg-gradient-to-r from-gold-500 to-gold-400 text-brand-900 shadow-lg shadow-gold-500/20 hover:shadow-gold-500/40 hover:-translate-y-0.5;
+    }
+    .btn-dark {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold tracking-wide transition-all duration-300 cursor-pointer
+            bg-brand-900 text-gold-300 hover:bg-brand-800;
+    }
+    .btn-outline {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold tracking-wide transition-all duration-300 cursor-pointer
+            border border-gold-400 text-gold-500 hover:bg-gold-500 hover:text-brand-900;
+    }
+    .container-x { @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8; }
+    .card {
+        @apply rounded-2xl bg-white ring-1 ring-black/[0.04];
+        box-shadow: 0 1px 2px rgba(16,30,24,.04), 0 10px 30px -16px rgba(16,30,24,.18);
+    }
+    .input {
+        @apply w-full rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-sm text-ink
+            transition placeholder:text-gray-400
+            focus:border-gold-400 focus:bg-white focus:ring-4 focus:ring-gold-400/15 focus:outline-none;
+    }
+    select.input { @apply cursor-pointer; }
+    .label { @apply mb-1.5 block text-sm font-semibold text-gray-700; }
+
+    /* Card header with gold accent */
+    .card-head { @apply flex items-center gap-3 border-b border-gray-100 px-6 py-4; }
+    .accent-bar { @apply h-6 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-b from-gold-400 to-gold-600; }
+    .section-title { @apply flex items-center gap-2.5 font-serif text-lg font-semibold text-ink; }
+    .section-title::before {
+        content: '';
+        @apply h-5 w-1.5 rounded-full bg-gradient-to-b from-gold-400 to-gold-600;
+    }
+}
+
+/* ---------------- Premium hero animations ---------------- */
+@keyframes reveal-up {
+    from { opacity: 0; transform: translateY(32px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
+}
+@keyframes sheen-sweep {
+    0%   { left: -150%; }
+    60%, 100% { left: 150%; }
+}
+@keyframes kenburns {
+    from { transform: scale(1); }
+    to   { transform: scale(1.12); }
+}
+@keyframes glow-float {
+    0%, 100% { opacity: .18; transform: translate(0, 0) scale(1); }
+    50%      { opacity: .30; transform: translate(-3%, -2%) scale(1.06); }
+}
+
+/* Staggered reveal: add .reveal + an inline animation-delay */
+.reveal {
+    opacity: 0;
+    animation: reveal-up 1s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+/* Subtle slow zoom for the hero background media */
+.hero-kenburns { animation: kenburns 18s ease-out forwards; }
+.hero-glow { animation: glow-float 9s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal { animation: none; opacity: 1; }
+    .hero-kenburns, .hero-glow { animation: none; }
+}
+
+/* Gold button: luxury shine sweep on hover */
+.btn-gold { position: relative; overflow: hidden; }
+.btn-gold > * { position: relative; z-index: 1; }
+.btn-gold::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -150%;
+    width: 60%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,.55), transparent);
+    transform: skewX(-20deg);
+    z-index: 0;
+    pointer-events: none;
+}
+.btn-gold:hover::after { animation: sheen-sweep .9s ease; }
+
+/* Image hover-zoom (product slider) */
+.zoom-wrap { overflow: hidden; }
+.zoom-wrap img { transition: transform .1s ease-out; will-change: transform; }
+
+/* Rich text (Quill) editor */
+.rich-editor .ql-toolbar {
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+}
+.rich-editor .ql-container {
+    border: none;
+    font-family: var(--font-sans);
+    font-size: .95rem;
+}
+.rich-editor .ql-editor { min-height: 180px; }
+.rich-editor .ql-editor.ql-blank::before { font-style: normal; color: #9ca3af; }
+
+/* Quill alignment classes rendered on the public side */
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+
+/* Hide scrollbars on thumbnail strips */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Alpine: hide elements until initialised */
+[x-cloak] { display: none !important; }
+
+/* Attention-grabbing CTA: gentle gold glow + ripple pulse */
+@keyframes cta-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(201, 162, 75, .55), 0 10px 30px -10px rgba(201, 162, 75, .5); }
+    70%  { box-shadow: 0 0 0 16px rgba(201, 162, 75, 0), 0 10px 30px -10px rgba(201, 162, 75, .5); }
+    100% { box-shadow: 0 0 0 0 rgba(201, 162, 75, 0), 0 10px 30px -10px rgba(201, 162, 75, .5); }
+}
+.pulse-cta {
+    animation: cta-pulse 1.8s cubic-bezier(.66, 0, 0, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .pulse-cta { animation: none; }
+}
+
+/* ---------------- Product description (rich HTML from editor) ---------------- */
+.product-desc { color: #4b5563; line-height: 1.8; font-size: .975rem; }
+.product-desc > :first-child { margin-top: 0; }
+.product-desc p { margin: 0 0 1rem; }
+.product-desc > p:first-of-type {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #374151;
+}
+.product-desc strong { color: var(--color-ink); font-weight: 600; }
+.product-desc em { font-style: italic; }
+.product-desc a { color: var(--color-gold-600); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Section headings (h2–h4, or editor "Heading" blocks) */
+.product-desc h1,
+.product-desc h2,
+.product-desc h3,
+.product-desc h4 {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin: 1.9rem 0 .9rem;
+    padding-bottom: .55rem;
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    border-bottom: 1px solid rgba(201, 162, 75, .28);
+}
+.product-desc h1::before,
+.product-desc h2::before,
+.product-desc h3::before,
+.product-desc h4::before {
+    content: '';
+    flex: none;
+    width: .32rem;
+    height: 1.15rem;
+    border-radius: 9999px;
+    background: linear-gradient(to bottom, var(--color-gold-400), var(--color-gold-600));
+}
+
+/* Bulleted lists with gold markers */
+.product-desc ul { margin: 0 0 1.15rem; padding: 0; list-style: none; }
+.product-desc ul li {
+    position: relative;
+    padding-left: 1.65rem;
+    margin-bottom: .62rem;
+}
+.product-desc ul li::before {
+    content: '';
+    position: absolute;
+    left: .25rem;
+    top: .62rem;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 9999px;
+    background: var(--color-gold-500);
+    box-shadow: 0 0 0 3px rgba(201, 162, 75, .16);
+}
+.product-desc ol { margin: 0 0 1.15rem; padding-left: 1.3rem; }
+.product-desc ol li { margin-bottom: .62rem; }
+
+/* Highlighted closing / signature line */
+.product-desc blockquote {
+    margin: 1.6rem 0 0;
+    padding: 1rem 1.3rem;
+    border-left: 3px solid var(--color-gold-500);
+    border-radius: 0 .9rem .9rem 0;
+    background: linear-gradient(to right, rgba(201, 162, 75, .1), rgba(201, 162, 75, .02));
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--color-brand-800);
+}
+.product-desc blockquote strong { color: var(--color-gold-600); }
