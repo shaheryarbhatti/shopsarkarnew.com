@@ -108,5 +108,52 @@ Alpine.data('heroHeading', () => ({
     },
 }));
 
+/**
+ * Global click loader: shows a spinner overlay whenever the user triggers a
+ * real page navigation (form submit or an internal link) so they get instant
+ * feedback that their click registered. Toggle buttons (type="button") and
+ * in-page anchors (#) do NOT trigger it.
+ */
+function initPageLoader() {
+    let loader = document.getElementById('page-loader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'page-loader';
+        loader.innerHTML = '<div class="spinner"></div>';
+        document.body.appendChild(loader);
+    }
+
+    let safety = null;
+    const show = () => {
+        loader.classList.add('show');
+        clearTimeout(safety);
+        safety = setTimeout(() => loader.classList.remove('show'), 15000); // auto-hide fallback
+    };
+    const hide = () => { loader.classList.remove('show'); clearTimeout(safety); };
+
+    // Any real form submission (Add to Cart, Shop Now, login, checkout, admin…)
+    document.addEventListener('submit', (e) => {
+        if (e.target.hasAttribute('data-no-loader')) return;
+        show();
+    }, true);
+
+    // Internal navigation links
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href]');
+        if (!a || a.hasAttribute('data-no-loader')) return;
+        const href = a.getAttribute('href') || '';
+        if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+        if (a.target === '_blank' || a.hasAttribute('download')) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        try { if (new URL(a.href, location.href).origin !== location.origin) return; } catch (_) { return; }
+        show();
+    });
+
+    // Hide when returning via the browser's back/forward cache.
+    window.addEventListener('pageshow', hide);
+}
+document.addEventListener('DOMContentLoaded', initPageLoader);
+if (document.readyState !== 'loading') initPageLoader();
+
 window.Alpine = Alpine;
 Alpine.start();
