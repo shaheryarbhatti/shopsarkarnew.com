@@ -143,8 +143,11 @@ class CheckoutController extends Controller
                 Mail::to($order->email)->send(new OrderPlaced($order));
             }
 
-            // Admin notification (store contact email, falling back to the from address)
-            $adminEmail = setting('contact_email') ?: config('mail.from.address');
+            // Admin notification → the super-admin's account email (users table),
+            // falling back to the store contact email, then the from address.
+            $adminEmail = User::role('super-admin')->value('email')
+                ?: setting('contact_email')
+                ?: config('mail.from.address');
             if ($adminEmail) {
                 Mail::to($adminEmail)->send(new NewOrderNotification($order));
             }
