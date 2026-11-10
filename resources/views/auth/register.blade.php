@@ -1,4 +1,4 @@
-<x-auth title="Register" heading="Create Account" subheading="Join us and start shopping">
+<x-auth page="register" title="Register" heading="Create Account" subheading="Join us and start shopping">
 
     @if($errors->any())
         <div class="mb-5 flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">

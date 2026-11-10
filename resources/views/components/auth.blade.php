@@ -2,6 +2,7 @@
     'title' => 'Account',
     'heading' => 'Welcome',
     'subheading' => '',
+    'page' => null,
 ])
 
 @php
@@ -9,6 +10,13 @@
     $poster = setting_file('hero_poster');
     $name = setting('site_name', 'SHOP');
     $logo = setting_file('site_logo');
+
+    // Per-page side image (falls back to the homepage hero media when not set)
+    $pageImage = match ($page) {
+        'login' => setting_file('auth_login_image'),
+        'register' => setting_file('auth_register_image'),
+        default => null,
+    };
 @endphp
 
 <!DOCTYPE html>
@@ -29,7 +37,9 @@
         <div class="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-brand-900 p-12 lg:flex">
             {{-- Background media --}}
             <div class="absolute inset-0 z-0">
-                @if($video)
+                @if($pageImage)
+                    <img src="{{ $pageImage }}" class="h-full w-full object-cover hero-kenburns" alt="">
+                @elseif($video)
                     <video class="h-full w-full object-cover hero-kenburns" autoplay muted loop playsinline @if($poster) poster="{{ $poster }}" @endif>
                         <source src="{{ $video }}" type="video/mp4">
                     </video>

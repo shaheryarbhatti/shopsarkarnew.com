@@ -4,6 +4,7 @@
         $meta = [
             'general'   => ['Store Identity', 'Name, logo, currency & contact details', 'M3.75 21h16.5M4.5 3h15l-.75 3.75H5.25L4.5 3Zm.75 3.75V21m13.5-14.25V21M8.25 10.5v6.75m3.75-6.75v6.75m3.75-6.75v6.75'],
             'hero'      => ['Homepage Hero', 'Headings, background video & call to action', 'M2.25 12.75V12a9 9 0 1 1 18 0v.75M18 12a6 6 0 0 0-12 0M12 8.25v8.25m0 0 3-3m-3 3-3-3'],
+            'auth'      => ['Login & Register', 'Side images on the login and register pages', 'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z'],
             'shipping'  => ['Shipping', 'Flat rate & free-shipping threshold', 'M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12'],
             'tax'       => ['Tax', 'Enable tax and set the rate', 'M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z'],
             'affiliate' => ['Affiliate Program', 'Commissions, withdrawals & maturity', 'M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'],
@@ -18,6 +19,7 @@
             'hero_subtext_en'=>'Hero Subtext (English)','hero_subtext_ur'=>'Hero Subtext (Urdu)',
             'hero_button_text'=>'Button Text','hero_button_text_ur'=>'Button Text (Urdu)',
             'hero_video'=>'Background Video (mp4/webm)','hero_poster'=>'Poster Image (desktop · landscape)','hero_poster_mobile'=>'Mobile Poster Image (portrait · phones)','hero_product_id'=>'Buy Now → Product',
+            'auth_login_image'=>'Login Page Image (portrait)','auth_register_image'=>'Register Page Image (portrait)',
             'shipping_enabled'=>'Enable Shipping','shipping_flat_rate'=>'Flat Shipping Rate (Rs.)',
             'free_shipping_enabled'=>'Enable Free Shipping','free_shipping_threshold'=>'Free Shipping Above (Rs.)',
             'tax_enabled'=>'Enable Tax','tax_rate'=>'Tax Rate (%)','tax_label'=>'Tax Label',
@@ -73,6 +75,15 @@
                         <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
                         <span>
                             Just paste your <strong>Pixel ID</strong> (e.g. <code class="rounded bg-white px-1">1234567890</code>) — the full tracking script is generated and loaded automatically in the site header on every page. Leave a field empty to disable it.
+                        </span>
+                    </div>
+                @endif
+
+                @if($group === 'auth')
+                    <div class="flex items-start gap-3 rounded-xl border border-gold-200 bg-gold-50/60 p-4 text-sm text-gray-600">
+                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                        <span>
+                            These images appear on the <strong>left side panel</strong> of the login and register pages (desktop &amp; tablet). Use a <strong>portrait / vertical</strong> image — recommended <strong>1200 × 1600&nbsp;px</strong> (3:4) or <strong>1080 × 1920&nbsp;px</strong> (9:16), max 4&nbsp;MB. Leave empty to use the homepage hero image.
                         </span>
                     </div>
                 @endif

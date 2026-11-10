@@ -37,6 +37,10 @@ class SettingController extends Controller
                 'hero_poster_mobile' => 'file',
                 'hero_product_id' => 'number',
             ],
+            'auth' => [
+                'auth_login_image' => 'file',
+                'auth_register_image' => 'file',
+            ],
             'shipping' => [
                 'shipping_enabled' => 'boolean',
                 'shipping_flat_rate' => 'number',
@@ -91,6 +95,8 @@ class SettingController extends Controller
             'favicon' => ['nullable', 'image', 'max:2048'],
             'hero_poster' => ['nullable', 'image', 'max:4096'],
             'hero_poster_mobile' => ['nullable', 'image', 'max:4096'],
+            'auth_login_image' => ['nullable', 'image', 'max:4096'],
+            'auth_register_image' => ['nullable', 'image', 'max:4096'],
             'hero_video' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm', 'max:102400'],
             'youtube_watermark' => ['nullable', 'image', 'mimes:png', 'max:1024'],
             'youtube_watermark_position' => ['nullable', 'in:topLeft,topRight,bottomLeft,bottomRight'],

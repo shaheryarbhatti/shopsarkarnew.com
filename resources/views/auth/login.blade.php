@@ -1,4 +1,4 @@
-<x-auth title="Login" heading="Welcome Back" subheading="Sign in to continue to your account">
+<x-auth page="login" title="Login" heading="Welcome Back" subheading="Sign in to continue to your account">
 
     @if($errors->any())
         <div class="mb-5 flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
