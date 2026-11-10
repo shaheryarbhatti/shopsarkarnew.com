@@ -6,13 +6,15 @@
     :meta-description="\Illuminate\Support\Str::of(strip_tags($product->meta_description ?: $product->short_description ?: $product->description))->squish()->limit(160)"
     :meta-keywords="$product->name.', buy '.$product->name.' online, '.$product->name.' price in Pakistan, '.($product->category->name ?? 'perfume').', perfume, fragrance, luxury perfume, long lasting perfume Pakistan'">
 
-    <x-slot:jsonld>
-        <script type="application/ld+json">
-        {!! json_encode(array_filter([
+    @php
+        $seoImg = \Illuminate\Support\Str::startsWith($product->thumbnail_url, 'http')
+            ? $product->thumbnail_url : url($product->thumbnail_url);
+
+        $productLd = [
             '@'.'context' => 'https://schema.org',
             '@type' => 'Product',
             'name' => $product->name,
-            'image' => \Illuminate\Support\Str::startsWith($product->thumbnail_url, 'http') ? $product->thumbnail_url : url($product->thumbnail_url),
+            'image' => $seoImg,
             'description' => (string) \Illuminate\Support\Str::of(strip_tags($product->short_description ?: $product->description))->squish()->limit(300),
             'sku' => $product->sku,
             'category' => $product->category->name ?? null,
@@ -24,7 +26,37 @@
                 'price' => number_format((float) $product->final_price, 2, '.', ''),
                 'availability' => $product->isInStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
             ],
-        ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+        ];
+
+        // Only emit ratings/reviews when there are genuine approved reviews
+        // (Google rich-result policy — never fabricate an aggregateRating).
+        if ($product->reviews_count > 0) {
+            $productLd['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => (string) $product->average_rating,
+                'reviewCount' => (string) $product->reviews_count,
+                'bestRating' => '5',
+                'worstRating' => '1',
+            ];
+            $productLd['review'] = $product->approvedReviews->take(10)->map(fn ($r) => array_filter([
+                '@type' => 'Review',
+                'reviewRating' => [
+                    '@type' => 'Rating',
+                    'ratingValue' => (string) $r->rating,
+                    'bestRating' => '5',
+                    'worstRating' => '1',
+                ],
+                'author' => ['@type' => 'Person', 'name' => $r->author_name ?: 'Verified Buyer'],
+                'datePublished' => $r->created_at?->toDateString(),
+                'name' => $r->title ?: null,
+                'reviewBody' => $r->body ?: null,
+            ]))->values()->all();
+        }
+    @endphp
+
+    <x-slot:jsonld>
+        <script type="application/ld+json">
+        {!! json_encode(array_filter($productLd), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
         </script>
     </x-slot:jsonld>
 

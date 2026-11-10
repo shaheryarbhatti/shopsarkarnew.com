@@ -34,6 +34,7 @@ class SettingController extends Controller
                 'hero_button_text_ur' => 'text',
                 'hero_video' => 'file',
                 'hero_poster' => 'file',
+                'hero_poster_mobile' => 'file',
                 'hero_product_id' => 'number',
             ],
             'shipping' => [
@@ -89,6 +90,7 @@ class SettingController extends Controller
             'footer_logo' => ['nullable', 'image', 'max:2048'],
             'favicon' => ['nullable', 'image', 'max:2048'],
             'hero_poster' => ['nullable', 'image', 'max:4096'],
+            'hero_poster_mobile' => ['nullable', 'image', 'max:4096'],
             'hero_video' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm', 'max:102400'],
             'youtube_watermark' => ['nullable', 'image', 'mimes:png', 'max:1024'],
             'youtube_watermark_position' => ['nullable', 'in:topLeft,topRight,bottomLeft,bottomRight'],

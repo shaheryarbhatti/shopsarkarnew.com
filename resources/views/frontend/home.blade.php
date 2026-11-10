@@ -9,19 +9,27 @@
 
         {{-- Background video / fallback --}}
         <div class="absolute inset-0 z-0">
-            @if($heroVideo)
-                <video class="h-full w-full object-cover hero-kenburns" autoplay muted loop playsinline
-                       @if($heroPoster) poster="{{ $heroPoster }}" @endif>
-                    <source src="{{ $heroVideo }}" type="video/mp4">
-                </video>
-            @elseif($heroPoster)
-                <img src="{{ $heroPoster }}" alt="" class="h-full w-full object-cover hero-kenburns">
-            @else
-                {{-- Elegant fallback gradient when no video uploaded yet --}}
-                <div class="h-full w-full bg-gradient-to-br from-brand-800 via-brand-900 to-black"></div>
-                <div class="hero-glow absolute inset-0"
-                     style="background-image:radial-gradient(circle at 70% 40%, rgba(201,162,75,.6), transparent 55%)"></div>
+            {{-- Mobile-only poster (portrait) — shown on phones when uploaded --}}
+            @if($heroPosterMobile)
+                <img src="{{ $heroPosterMobile }}" alt="" class="h-full w-full object-cover hero-kenburns md:hidden">
             @endif
+
+            {{-- Desktop media (also used on mobile when no mobile poster is set) --}}
+            <div class="{{ $heroPosterMobile ? 'hidden md:block' : '' }} h-full w-full">
+                @if($heroVideo)
+                    <video class="h-full w-full object-cover hero-kenburns" autoplay muted loop playsinline
+                           @if($heroPoster) poster="{{ $heroPoster }}" @endif>
+                        <source src="{{ $heroVideo }}" type="video/mp4">
+                    </video>
+                @elseif($heroPoster)
+                    <img src="{{ $heroPoster }}" alt="" class="h-full w-full object-cover hero-kenburns">
+                @else
+                    {{-- Elegant fallback gradient when no video uploaded yet --}}
+                    <div class="h-full w-full bg-gradient-to-br from-brand-800 via-brand-900 to-black"></div>
+                    <div class="hero-glow absolute inset-0"
+                         style="background-image:radial-gradient(circle at 70% 40%, rgba(201,162,75,.6), transparent 55%)"></div>
+                @endif
+            </div>
             {{-- Readability overlay (darker on the left where the text sits) --}}
             <div class="absolute inset-0 bg-gradient-to-r from-brand-900/90 via-brand-900/60 to-transparent"></div>
         </div>

@@ -17,7 +17,7 @@
             'hero_heading_en'=>'Hero Heading (English)','hero_heading_ur'=>'Hero Heading (Urdu)',
             'hero_subtext_en'=>'Hero Subtext (English)','hero_subtext_ur'=>'Hero Subtext (Urdu)',
             'hero_button_text'=>'Button Text','hero_button_text_ur'=>'Button Text (Urdu)',
-            'hero_video'=>'Background Video (mp4/webm)','hero_poster'=>'Poster Image','hero_product_id'=>'Buy Now → Product',
+            'hero_video'=>'Background Video (mp4/webm)','hero_poster'=>'Poster Image (desktop · landscape)','hero_poster_mobile'=>'Mobile Poster Image (portrait · phones)','hero_product_id'=>'Buy Now → Product',
             'shipping_enabled'=>'Enable Shipping','shipping_flat_rate'=>'Flat Shipping Rate (Rs.)',
             'free_shipping_enabled'=>'Enable Free Shipping','free_shipping_threshold'=>'Free Shipping Above (Rs.)',
             'tax_enabled'=>'Enable Tax','tax_rate'=>'Tax Rate (%)','tax_label'=>'Tax Label',

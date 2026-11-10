@@ -23,6 +23,7 @@ class HomeController extends Controller
             'heroProduct' => $heroProduct,
             'heroVideo'   => setting_file('hero_video'),
             'heroPoster'  => setting_file('hero_poster'),
+            'heroPosterMobile' => setting_file('hero_poster_mobile'),
         ]);
     }
 }

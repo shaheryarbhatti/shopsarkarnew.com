@@ -24,8 +24,18 @@
         <form method="POST" action="{{ route('checkout.store') }}" class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             @csrf
 
+            {{-- Mobile only: editable order items above the form (easy quantity change) --}}
+            <div class="order-1 lg:hidden">
+                <div class="card overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h2 class="section-title">Your Order</h2>
+                    </div>
+                    @include('frontend.partials.checkout-items')
+                </div>
+            </div>
+
             {{-- ===== LEFT: Billing form ===== --}}
-            <div class="lg:col-span-2 space-y-6">
+            <div class="order-2 lg:order-none lg:col-span-2 space-y-6">
                 <div class="card overflow-hidden">
                     <div class="flex items-center gap-3 border-b border-gray-100 p-6">
                         <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-gold-500/10 text-gold-600">
@@ -95,59 +105,33 @@
                         <h2 class="font-serif text-xl font-semibold text-ink">Payment Method</h2>
                     </div>
                     <div class="p-6">
-                        <label class="flex items-center gap-4 rounded-xl border-2 border-gold-400 bg-gradient-to-r from-gold-200/30 to-transparent p-4 shadow-sm">
-                            <input type="radio" name="payment_method" value="cod" checked class="text-gold-500 focus:ring-gold-400">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-lg bg-gold-500/15 text-gold-600">
+                        <label class="relative flex items-center gap-4 rounded-xl border-2 border-gold-400 bg-gradient-to-r from-gold-200/30 to-transparent p-4 pr-28 shadow-sm sm:pr-4">
+                            <input type="radio" name="payment_method" value="cod" checked class="flex-shrink-0 text-gold-500 focus:ring-gold-400">
+                            <span class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-gold-500/15 text-gold-600">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                             </span>
-                            <span class="flex-1">
+                            <span class="min-w-0 flex-1">
                                 <span class="block font-semibold text-ink">Cash on Delivery</span>
-                                <span class="text-sm text-gray-500">Pay with cash when your order arrives.</span>
+                                <span class="block text-sm text-gray-500">Pay with cash when your order arrives.</span>
                             </span>
-                            <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">Recommended</span>
+                            <span class="absolute right-4 top-4 flex-shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600 sm:static">Recommended</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            {{-- ===== RIGHT: Order summary ===== --}}
-            <div class="lg:col-span-1">
-                <div class="card sticky top-24 overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h2 class="section-title">Your Order</h2>
+            {{-- ===== RIGHT: Order summary (desktop: full card; mobile: totals + Place Order only) ===== --}}
+            <div class="order-3 lg:order-none lg:col-span-1">
+                <div class="card overflow-hidden lg:sticky lg:top-24">
+                    {{-- Items shown here on desktop only; on mobile they appear above the form --}}
+                    <div class="hidden lg:block">
+                        <div class="border-b border-gray-100 p-6">
+                            <h2 class="section-title">Your Order</h2>
+                        </div>
+                        @include('frontend.partials.checkout-items')
                     </div>
 
-                    <div class="space-y-4 p-6">
-                        @foreach($items as $line)
-                            <div class="flex items-center gap-3">
-                                <div class="relative">
-                                    <img src="{{ $line->product->thumbnail_url }}" class="h-16 w-16 rounded-xl object-cover ring-1 ring-black/5">
-                                    <span data-qty-badge="{{ $line->product->id }}" class="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-900 px-1.5 text-xs font-bold text-gold-300 ring-2 ring-white">{{ $line->qty }}</span>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <p class="truncate text-sm font-semibold text-ink">{{ $line->product->name }}</p>
-                                    <p class="mt-0.5 text-xs text-gray-500">{{ money($line->price) }} each</p>
-                                    <div class="mt-1.5 flex items-center gap-3">
-                                        {{-- Quantity stepper --}}
-                                        <div class="flex items-center rounded-full border border-gray-300">
-                                            <button type="button" data-minus="{{ $line->product->id }}" onclick="cartQty({{ $line->product->id }}, -1)" @disabled($line->qty <= 1) class="px-2.5 py-1 text-base leading-none text-gray-500 transition hover:text-ink disabled:opacity-40">−</button>
-                                            <span data-qty="{{ $line->product->id }}" class="w-7 text-center text-sm font-semibold">{{ $line->qty }}</span>
-                                            <button type="button" onclick="cartQty({{ $line->product->id }}, 1)" class="px-2.5 py-1 text-base leading-none text-gray-500 transition hover:text-ink">+</button>
-                                        </div>
-                                        <button type="button"
-                                                onclick="cartRemove({{ $line->product->id }})"
-                                                class="inline-flex items-center gap-1 text-xs font-medium text-red-500 transition hover:text-red-600">
-                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                                            Remove
-                                        </button>
-                                    </div>
-                                </div>
-                                <p data-line-subtotal="{{ $line->product->id }}" class="text-sm font-bold text-ink">{{ money($line->subtotal) }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="border-t border-gray-100 px-6 py-4">
+                    <div class="border-gray-100 px-6 pb-4 pt-6 lg:border-t lg:pt-4">
                         <dl class="space-y-2.5 text-sm">
                             <div class="flex justify-between"><dt class="text-gray-500">Subtotal</dt><dd data-cart-subtotal class="font-medium text-ink">{{ money($totals['subtotal']) }}</dd></div>
 
@@ -254,10 +238,11 @@
                 const id = d.product_id;
                 document.querySelectorAll('[data-qty="' + id + '"], [data-qty-badge="' + id + '"]')
                     .forEach(el => el.textContent = d.qty);
-                const minus = document.querySelector('[data-minus="' + id + '"]');
-                if (minus) minus.disabled = d.qty <= 1;
+                document.querySelectorAll('[data-minus="' + id + '"]')
+                    .forEach(btn => btn.disabled = d.qty <= 1);
                 const set = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
-                set('[data-line-subtotal="' + id + '"]', d.line_subtotal);
+                document.querySelectorAll('[data-line-subtotal="' + id + '"]')
+                    .forEach(el => el.textContent = d.line_subtotal);
                 set('[data-cart-subtotal]', d.subtotal);
                 set('[data-cart-total]', d.total);
                 if (d.tax_enabled) set('[data-cart-tax]', d.tax);
