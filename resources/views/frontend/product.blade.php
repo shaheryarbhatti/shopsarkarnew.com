@@ -31,6 +31,10 @@
 
     <section class="container-x py-10 lg:py-14">
 
+        {{-- Marketing: product view event (TikTok + Facebook) --}}
+        <x-track-event event="ViewContent" :value="$product->final_price"
+            :contents="[['id' => $product->id, 'name' => $product->name, 'quantity' => 1, 'price' => $product->final_price]]" />
+
         {{-- Breadcrumb --}}
         <nav class="mb-8 flex items-center gap-2 text-sm text-gray-500">
             <a href="{{ route('home') }}" class="hover:text-gold-600">Home</a>
@@ -161,7 +165,20 @@
 
                 {{-- Add to cart --}}
                 @if($product->isInStock())
-                    <form method="POST" action="{{ route('cart.add') }}" x-data="{ qty: 1 }" class="space-y-4">
+                    {{-- Marketing: AddToCart event helper (TikTok + Facebook) --}}
+                    <script>
+                        window.sarkarTrackAddToCart = function (qty) {
+                            qty = parseInt(qty) || 1;
+                            var price = {{ (float) $product->final_price }};
+                            var pid = @json((string) $product->id);
+                            var tt = { contents: [{ content_id: pid, content_type: 'product', content_name: @json($product->name), quantity: qty, price: price }], value: price * qty, currency: 'PKR' };
+                            var fb = { content_ids: [pid], content_type: 'product', contents: [{ id: pid, quantity: qty }], value: price * qty, currency: 'PKR' };
+                            try { if (window.ttq) ttq.track('AddToCart', tt); } catch (e) {}
+                            try { if (window.fbq) fbq('track', 'AddToCart', fb); } catch (e) {}
+                        };
+                    </script>
+                    <form method="POST" action="{{ route('cart.add') }}" x-data="{ qty: 1 }" class="space-y-4"
+                          @submit="window.sarkarTrackAddToCart && window.sarkarTrackAddToCart(qty)">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" name="quantity" :value="qty">

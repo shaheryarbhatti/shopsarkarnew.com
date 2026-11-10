@@ -69,6 +69,16 @@
                 </div>
             </div>
         </div>
+
+        {{-- Marketing: Purchase / CompletePayment event (fires once per order) --}}
+        @php
+            $pcContents = $order->items->map(fn ($it) => [
+                'id' => $it->product_id, 'name' => $it->name,
+                'quantity' => $it->quantity, 'price' => $it->price,
+            ])->all();
+        @endphp
+        <x-track-event event="CompletePayment" :value="$order->total"
+            :currency="$order->currency ?: 'PKR'" :contents="$pcContents" :once="$order->order_number" />
     </section>
 
 </x-storefront>

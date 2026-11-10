@@ -265,6 +265,15 @@
                 document.getElementById('remove-' + id).submit();
             }
         </script>
+
+        {{-- Marketing: InitiateCheckout event (TikTok + Facebook) --}}
+        @php
+            $icContents = $items->map(fn ($l) => [
+                'id' => $l->product->id, 'name' => $l->product->name,
+                'quantity' => $l->qty, 'price' => $l->product->final_price,
+            ])->all();
+        @endphp
+        <x-track-event event="InitiateCheckout" :value="$totals['total']" :contents="$icContents" />
         @endif
     </section>
 
