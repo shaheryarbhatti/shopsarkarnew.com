@@ -223,6 +223,9 @@
     94% { transform: translateX(0) rotate(0); }
 }
 @media (max-width: 767px) {
+    .cta-shake-mobile {
+        animation: cta-shake 4s ease-in-out infinite;
+    }
     .cta-shake-mobile.pulse-cta {
         animation: cta-pulse 1.8s cubic-bezier(.66, 0, 0, 1) infinite,
                    cta-shake 4s ease-in-out infinite;

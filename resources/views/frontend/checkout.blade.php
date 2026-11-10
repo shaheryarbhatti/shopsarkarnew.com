@@ -12,6 +12,15 @@
                 <a href="{{ route('home') }}" class="btn-gold mt-6">Continue Shopping</a>
             </div>
         @else
+        {{-- Back to shopping --}}
+        <div class="mb-6">
+            <a href="{{ url()->previous() === url()->current() ? route('home') : url()->previous() }}"
+               class="group inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:border-gold-300 hover:text-gold-700">
+                <svg class="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+                Back to shopping
+            </a>
+        </div>
+
         <form method="POST" action="{{ route('checkout.store') }}" class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             @csrf
 
