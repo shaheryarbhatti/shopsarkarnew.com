@@ -19,6 +19,8 @@
     <title>{{ $title }} — {{ $name }}</title>
     <link rel="icon" href="{{ setting_file('favicon') ?: asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <x-tracking-scripts />
 </head>
 <body class="min-h-screen bg-cream">
     <div class="flex min-h-screen">

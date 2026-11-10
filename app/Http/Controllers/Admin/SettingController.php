@@ -57,6 +57,11 @@ class SettingController extends Controller
                 'youtube_watermark' => 'file',
                 'youtube_watermark_position' => 'text',
             ],
+            'marketing' => [
+                'facebook_pixel_id' => 'text',
+                'tiktok_pixel_id' => 'text',
+                'custom_head_code' => 'textarea',
+            ],
         ];
     }
 

@@ -45,6 +45,11 @@ class SettingsSeeder extends Seeder
             ['withdraw_min_amount', '500', 'affiliate', 'number'],
             ['earning_maturity_days', '3', 'affiliate', 'number'],
             ['affiliate_terms', 'Earn commission on every sale made through your personal referral link.', 'affiliate', 'textarea'],
+
+            // Marketing / tracking pixels
+            ['facebook_pixel_id', '', 'marketing', 'text'],
+            ['tiktok_pixel_id', '', 'marketing', 'text'],
+            ['custom_head_code', '', 'marketing', 'textarea'],
         ];
 
         foreach ($defaults as [$key, $value, $group, $type]) {

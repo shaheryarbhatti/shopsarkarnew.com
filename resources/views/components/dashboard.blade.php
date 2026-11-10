@@ -27,6 +27,8 @@
     <title>{{ $title }} — {{ setting('site_name', 'Shop') }}</title>
     <link rel="icon" href="{{ setting_file('favicon') ?: asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <x-tracking-scripts />
 </head>
 <body class="min-h-screen bg-cream" x-data="{ sidebar: false }">
 

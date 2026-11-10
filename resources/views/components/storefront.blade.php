@@ -90,6 +90,8 @@
     {!! $jsonld ?? '' !!}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <x-tracking-scripts />
 </head>
 <body class="min-h-screen flex flex-col {{ $bodyClass }}" x-data>
 

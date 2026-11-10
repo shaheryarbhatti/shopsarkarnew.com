@@ -8,6 +8,7 @@
             'tax'       => ['Tax', 'Enable tax and set the rate', 'M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z'],
             'affiliate' => ['Affiliate Program', 'Commissions, withdrawals & maturity', 'M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'],
             'reviews'   => ['Review Videos', 'Logo watermark on your YouTube review videos', 'M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6'],
+            'marketing' => ['Marketing & Pixels', 'Facebook Pixel, TikTok Pixel & tracking codes', 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z'],
         ];
         $labels = [
             'site_name'=>'Site Name','site_logo'=>'Header Logo','footer_logo'=>'Footer Logo','favicon'=>'Favicon (auto 512×512)','currency_symbol'=>'Currency Symbol',
@@ -23,6 +24,7 @@
             'affiliate_enabled'=>'Enable Affiliate Program','withdraw_min_amount'=>'Minimum Withdrawal (Rs.)',
             'earning_maturity_days'=>'Earning Maturity (days)','affiliate_terms'=>'Program Description',
             'youtube_watermark'=>'Watermark Logo (transparent PNG, ≤1MB)','youtube_watermark_position'=>'Watermark Corner',
+            'facebook_pixel_id'=>'Facebook Pixel ID','tiktok_pixel_id'=>'TikTok Pixel ID','custom_head_code'=>'Custom Head Code (advanced)',
         ];
     @endphp
 
@@ -66,11 +68,30 @@
                     </div>
                 @endif
 
+                @if($group === 'marketing')
+                    <div class="flex items-start gap-3 rounded-xl border border-gold-200 bg-gold-50/60 p-4 text-sm text-gray-600">
+                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                        <span>
+                            Just paste your <strong>Pixel ID</strong> (e.g. <code class="rounded bg-white px-1">1234567890</code>) — the full tracking script is generated and loaded automatically in the site header on every page. Leave a field empty to disable it.
+                        </span>
+                    </div>
+                @endif
+
                 @foreach($fields as $key => $type)
                     <div>
                         <label class="label">{{ $labels[$key] ?? $key }}</label>
 
-                        @if($key === 'hero_product_id')
+                        @if($key === 'custom_head_code')
+                            <textarea name="custom_head_code" rows="6" class="input" placeholder="Paste any extra <script> or <meta> tags to inject into every page's &lt;head&gt;">{{ $values[$key] ?? '' }}</textarea>
+                            <p class="mt-1 text-xs text-gray-400">Advanced — raw code added to the site header. Leave empty if unsure.</p>
+
+                        @elseif($key === 'facebook_pixel_id')
+                            <input name="facebook_pixel_id" class="input max-w-sm" value="{{ $values[$key] ?? '' }}" placeholder="e.g. 123456789012345">
+
+                        @elseif($key === 'tiktok_pixel_id')
+                            <input name="tiktok_pixel_id" class="input max-w-sm" value="{{ $values[$key] ?? '' }}" placeholder="e.g. C9XXXXXXXXXXXXXXXXXX">
+
+                        @elseif($key === 'hero_product_id')
                             <select name="hero_product_id" class="input">
                                 <option value="">— None —</option>
                                 @foreach($products as $p)
