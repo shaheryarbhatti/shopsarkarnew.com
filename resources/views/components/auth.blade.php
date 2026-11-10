@@ -38,8 +38,8 @@
             {{-- Background media --}}
             <div class="absolute inset-0 z-0">
                 @if($pageImage)
-                    {{-- Per-page image: show the FULL character (no crop / no zoom) --}}
-                    <img src="{{ $pageImage }}" class="h-full w-full object-contain object-center" alt="">
+                    {{-- Per-page image: fill the whole panel, subject centered (no zoom) --}}
+                    <img src="{{ $pageImage }}" class="h-full w-full object-cover object-center" alt="">
                 @elseif($video)
                     <video class="h-full w-full object-cover hero-kenburns" autoplay muted loop playsinline @if($poster) poster="{{ $poster }}" @endif>
                         <source src="{{ $video }}" type="video/mp4">
