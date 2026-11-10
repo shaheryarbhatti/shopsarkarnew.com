@@ -108,9 +108,12 @@
     @endif
 
     {{-- Flash toast --}}
-    @if(session('success') || session('error'))
-        @php $isError = (bool) session('error'); @endphp
-        <div x-data="{show:false}" x-init="$nextTick(() => show = true); setTimeout(() => show = false, 4000)"
+    @if(session('cart_added') || session('success') || session('error'))
+        @php
+            $cartAdded = session('cart_added');
+            $isError = (bool) session('error');
+        @endphp
+        <div x-data="{show:false}" x-init="$nextTick(() => show = true); setTimeout(() => show = false, 4500)"
              x-show="show"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 -translate-y-4"
@@ -118,31 +121,57 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 -translate-y-4"
-             class="fixed top-24 left-1/2 z-[70] w-[calc(100%-2rem)] max-w-md -translate-x-1/2"
+             class="fixed top-24 left-1/2 z-[70] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2"
              role="status" aria-live="polite">
-            <div class="flex items-center gap-3.5 rounded-2xl px-5 py-4 shadow-2xl ring-1
-                        {{ $isError ? 'bg-red-600 text-white ring-red-400/40' : 'bg-brand-800 text-gold-100 ring-gold-400/40' }}">
-                <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full
-                             {{ $isError ? 'bg-white/15' : 'bg-gold-500/20' }}">
-                    @if($isError)
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-                    @else
-                        <svg class="h-6 w-6 text-gold-300" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                    @endif
-                </span>
-                <div class="min-w-0 flex-1">
-                    <p class="text-base font-semibold leading-tight">{{ session('success') ?? session('error') }}</p>
-                    @unless($isError)
-                        <a href="{{ route('checkout') }}" class="mt-0.5 inline-flex items-center gap-1 text-sm font-medium text-gold-300 underline-offset-2 hover:underline">
-                            View cart
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
-                        </a>
-                    @endunless
+
+            @if($cartAdded)
+                {{-- Rich "added to cart" card — whole card links to checkout --}}
+                <div class="relative overflow-hidden rounded-2xl bg-brand-800 shadow-2xl ring-1 ring-gold-400/40">
+                    <button type="button" @click="show = false"
+                            class="absolute right-2 top-2 z-10 rounded-full p-1 text-gold-200/70 transition hover:bg-white/10 hover:text-gold-100"
+                            aria-label="Dismiss">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                    </button>
+
+                    <a href="{{ route('checkout') }}" class="block">
+                        <div class="flex items-center gap-3 p-3">
+                            <img src="{{ $cartAdded['image'] }}" alt="{{ $cartAdded['name'] }}"
+                                 class="h-16 w-16 flex-shrink-0 rounded-xl object-cover ring-1 ring-white/10">
+                            <div class="min-w-0 flex-1 pr-5">
+                                <p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gold-300">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                                    Added to cart
+                                </p>
+                                <p class="mt-0.5 truncate text-sm font-semibold text-gold-50">{{ $cartAdded['name'] }}</p>
+                                <p class="mt-0.5 text-xs text-gold-200/80">
+                                    Qty {{ $cartAdded['qty'] }} &middot; <span class="font-medium text-gold-100">{{ money($cartAdded['price'] * $cartAdded['qty']) }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-1.5 border-t border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-gold-200 transition hover:bg-white/10 hover:text-gold-100">
+                            View cart &amp; checkout
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                        </div>
+                    </a>
                 </div>
-                <button type="button" @click="show = false" class="flex-shrink-0 rounded-full p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
+            @else
+                {{-- Simple text toast (other success / error messages) --}}
+                <div class="flex items-center gap-3.5 rounded-2xl px-5 py-4 shadow-2xl ring-1
+                            {{ $isError ? 'bg-red-600 text-white ring-red-400/40' : 'bg-brand-800 text-gold-100 ring-gold-400/40' }}">
+                    <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full
+                                 {{ $isError ? 'bg-white/15' : 'bg-gold-500/20' }}">
+                        @if($isError)
+                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                        @else
+                            <svg class="h-6 w-6 text-gold-300" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                        @endif
+                    </span>
+                    <p class="min-w-0 flex-1 text-base font-semibold leading-tight">{{ session('success') ?? session('error') }}</p>
+                    <button type="button" @click="show = false" class="flex-shrink-0 rounded-full p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            @endif
         </div>
     @endif
 </body>

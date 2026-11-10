@@ -28,7 +28,12 @@ class CartController extends Controller
             return redirect()->route('checkout');
         }
 
-        return back()->with('success', $product->name . ' added to cart.');
+        return back()->with('cart_added', [
+            'name' => $product->name,
+            'image' => $product->thumbnail_url,
+            'qty' => (int) ($data['quantity'] ?? 1),
+            'price' => $product->final_price,
+        ]);
     }
 
     public function update(Request $request, PricingService $pricing)
