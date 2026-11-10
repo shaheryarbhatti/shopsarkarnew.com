@@ -83,7 +83,7 @@
                     <div class="flex items-start gap-3 rounded-xl border border-gold-200 bg-gold-50/60 p-4 text-sm text-gray-600">
                         <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
                         <span>
-                            These images appear on the <strong>left side panel</strong> of the login and register pages (desktop &amp; tablet). Use a <strong>portrait / vertical</strong> image — recommended <strong>1200 × 1600&nbsp;px</strong> (3:4) or <strong>1080 × 1920&nbsp;px</strong> (9:16), max 4&nbsp;MB. Leave empty to use the homepage hero image.
+                            These images appear on the <strong>left side panel</strong> of the login and register pages (desktop &amp; tablet). The full image is shown (never cropped), so use a <strong>portrait image around 4:5</strong> — recommended <strong>1080 × 1350&nbsp;px</strong> (best fit), max 4&nbsp;MB. Taller images (9:16) also work but show with dark side margins. Leave empty to use the homepage hero image.
                         </span>
                     </div>
                 @endif
