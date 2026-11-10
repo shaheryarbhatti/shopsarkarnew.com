@@ -183,9 +183,9 @@
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" name="quantity" :value="qty">
 
-                        <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4">
                             {{-- Quantity stepper --}}
-                            <div class="flex items-center rounded-full border border-gray-300">
+                            <div class="flex items-center w-full sm:w-auto justify-between sm:justify-center rounded-full border border-gray-300">
                                 <button type="button" @click="qty = Math.max(1, qty-1)" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">−</button>
                                 <span class="w-10 text-center font-semibold" x-text="qty"></span>
                                 <button type="button" @click="qty++" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">+</button>

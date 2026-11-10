@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-4 lg:justify-start" style="animation-delay:.65s">
-                    <a href="{{ $buyUrl }}" class="btn-gold pulse-cta group text-base px-9 py-3.5">
+                    <a href="{{ $buyUrl }}" class="btn-gold pulse-cta cta-shake-mobile group text-base px-9 py-3.5">
                         <span>{{ setting('hero_button_text', 'Buy Now') }}</span>
                         <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                     </a>
