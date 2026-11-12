@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $maturityDays = (int) setting('earning_maturity_days', 3);
         $matureBefore = Carbon::now()->subDays($maturityDays);
 
-        $revenue = (float) Order::whereIn('status', ['completed', 'shipped', 'processing'])->sum('total');
+        $revenue = (float) Order::where('status', 'completed')->sum('total');
         $expenses = (float) Expense::sum('amount');
         $commissions = (float) Earning::where('status', '!=', 'cancelled')->sum('amount');
         $profit = $revenue - $expenses - $commissions;
