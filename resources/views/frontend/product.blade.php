@@ -223,7 +223,7 @@
                                 <button type="button" @click="qty++" class="px-4 py-2.5 text-lg text-gray-500 hover:text-ink">+</button>
                             </div>
 
-                            <button type="submit" name="action" value="cart" class="btn-gold group pulse-cta cta-shake-mobile flex-1 min-w-[180px] px-8 py-3.5 text-base">
+                            <button type="submit" name="action" value="cart" data-fly-cart data-fly-img="{{ $product->thumbnail_url }}" class="btn-gold group pulse-cta cta-shake-mobile flex-1 min-w-[180px] px-8 py-3.5 text-base">
                                 <span>Add to Cart</span>
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121 0 2.1-.746 2.364-1.836l1.07-4.42a1.125 1.125 0 0 0-1.09-1.394H6.912m0 0L5.106 5.272"/></svg>
                             </button>
@@ -235,6 +235,159 @@
                             Shop Now
                         </button>
                     </form>
+
+                    {{-- Fly-to-cart animation: Add to Cart posts via AJAX (no reload),
+                         the product image flies to the header cart icon, badge bumps. --}}
+                    <style>
+                        .fly-to-cart{position:fixed;width:72px;height:72px;border-radius:9999px;object-fit:cover;z-index:9999;pointer-events:none;box-shadow:0 12px 28px rgba(0,0,0,.28);border:2px solid #c9a24b}
+                        [data-cart-icon].cart-bump{animation:cartBump .55s ease}
+                        @keyframes cartBump{0%,100%{transform:scale(1)}30%{transform:scale(1.35)}60%{transform:scale(.9)}}
+                        .ss-toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;align-items:center;gap:.4rem;border-radius:.75rem;padding:.75rem 1.1rem;font-size:.875rem;font-weight:600;color:#fff;background:#b91c1c;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease}
+                        .ss-toast.show{opacity:1;transform:translateY(0)}
+                        .ss-cart-toast{left:50%;opacity:0;transform:translate(-50%,-16px);transition:opacity .3s ease,transform .3s ease}
+                        .ss-cart-toast.show{opacity:1;transform:translate(-50%,0)}
+                    </style>
+                    <script>
+                    (function () {
+                        var btn = document.querySelector('[data-fly-cart]');
+                        if (!btn) return;
+                        var form = btn.closest('form');
+
+                        function flyImgSrc() {
+                            var gal = document.querySelector('[x-data^="productGallery"]');
+                            if (gal) {
+                                var imgs = gal.querySelectorAll('img');
+                                for (var i = 0; i < imgs.length; i++) {
+                                    if (imgs[i].offsetParent !== null && imgs[i].src) return imgs[i].src;
+                                }
+                            }
+                            return btn.getAttribute('data-fly-img');
+                        }
+
+                        function errToast(msg) {
+                            var t = document.createElement('div');
+                            t.className = 'ss-toast';
+                            t.textContent = msg;
+                            document.body.appendChild(t);
+                            requestAnimationFrame(function () { t.classList.add('show'); });
+                            setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 300); }, 2800);
+                        }
+
+                        // Rich "added to cart" card — same look as the server-rendered toast.
+                        function cartToast(data) {
+                            var old = document.querySelector('.ss-cart-toast');
+                            if (old) old.remove();
+
+                            var cartLink = document.querySelector('[data-cart-icon]');
+                            var checkout = cartLink ? cartLink.getAttribute('href') : '#';
+
+                            var wrap = document.createElement('div');
+                            wrap.className = 'ss-cart-toast fixed top-24 z-[70] w-[calc(100%-2rem)] max-w-sm';
+                            wrap.setAttribute('role', 'status');
+                            wrap.innerHTML =
+                                '<div class="relative overflow-hidden rounded-2xl bg-brand-800 shadow-2xl ring-1 ring-gold-400/40">' +
+                                  '<button type="button" class="ss-close absolute right-2 top-2 z-10 rounded-full p-1 text-gold-200/70 transition hover:bg-white/10 hover:text-gold-100" aria-label="Dismiss"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>' +
+                                  '<a href="' + checkout + '" class="block">' +
+                                    '<div class="flex items-center gap-3 p-3">' +
+                                      '<img data-img alt="" class="h-16 w-16 flex-shrink-0 rounded-xl object-cover ring-1 ring-white/10">' +
+                                      '<div class="min-w-0 flex-1 pr-5">' +
+                                        '<p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gold-300"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Added to cart</p>' +
+                                        '<p data-name class="mt-0.5 truncate text-sm font-semibold text-gold-50"></p>' +
+                                        '<p class="mt-0.5 text-xs text-gold-200/80">Qty <span data-qty></span> &middot; <span data-total class="font-medium text-gold-100"></span></p>' +
+                                      '</div>' +
+                                    '</div>' +
+                                    '<div class="flex items-center justify-center gap-1.5 border-t border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-gold-200 transition hover:bg-white/10 hover:text-gold-100">View cart &amp; checkout <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg></div>' +
+                                  '</a>' +
+                                '</div>';
+
+                            wrap.querySelector('[data-img]').src = data.image || '';
+                            wrap.querySelector('[data-name]').textContent = data.name || '';
+                            wrap.querySelector('[data-qty]').textContent = data.qty || 1;
+                            wrap.querySelector('[data-total]').textContent = data.total || '';
+                            document.body.appendChild(wrap);
+                            requestAnimationFrame(function () { wrap.classList.add('show'); });
+
+                            var close = function () { wrap.classList.remove('show'); setTimeout(function () { if (wrap.parentNode) wrap.remove(); }, 300); };
+                            wrap.querySelector('.ss-close').addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); close(); });
+                            setTimeout(close, 4500);
+                        }
+
+                        function updateBadge(count) {
+                            var cart = document.querySelector('[data-cart-icon]');
+                            if (!cart) return;
+                            var badge = cart.querySelector('[data-cart-count]');
+                            if (!badge) {
+                                badge = document.createElement('span');
+                                badge.setAttribute('data-cart-count', '');
+                                badge.className = 'absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[11px] font-bold text-brand-900';
+                                cart.appendChild(badge);
+                            }
+                            badge.textContent = count;
+                        }
+
+                        function fly() {
+                            var cart = document.querySelector('[data-cart-icon]');
+                            var src = flyImgSrc();
+                            if (!cart || !src) return;
+                            var s = btn.getBoundingClientRect();
+                            var e = cart.getBoundingClientRect();
+                            var sx = s.left + s.width / 2, sy = s.top + s.height / 2;
+                            var ex = e.left + e.width / 2, ey = e.top + e.height / 2;
+                            var dx = ex - sx, dy = ey - sy;
+                            var img = document.createElement('img');
+                            img.src = src; img.className = 'fly-to-cart';
+                            img.style.left = (sx - 36) + 'px';
+                            img.style.top = (sy - 36) + 'px';
+                            document.body.appendChild(img);
+                            var a = img.animate([
+                                { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                                { transform: 'translate(' + (dx / 2) + 'px,' + (dy / 2 - 110) + 'px) scale(.55)', opacity: .95, offset: .55 },
+                                { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.12)', opacity: .3 }
+                            ], { duration: 850, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'forwards' });
+                            var done = function () {
+                                if (!img.parentNode) return; // run once
+                                img.remove();
+                                cart.classList.add('cart-bump');
+                                setTimeout(function () { cart.classList.remove('cart-bump'); }, 600);
+                            };
+                            a.onfinish = done;
+                            setTimeout(done, 950); // guaranteed cleanup even if onfinish is throttled
+                        }
+
+                        btn.addEventListener('click', async function (ev) {
+                            ev.preventDefault();
+                            var qtyInput = form.querySelector('[name="quantity"]');
+                            var qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+                            try { if (window.sarkarTrackAddToCart) window.sarkarTrackAddToCart(qty); } catch (_) {}
+                            btn.classList.add('opacity-70', 'pointer-events-none');
+                            try {
+                                var fd = new FormData(form);
+                                fd.set('action', 'cart');
+                                var res = await fetch(form.getAttribute('action'), {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value
+                                    },
+                                    body: fd
+                                });
+                                var data = await res.json().catch(function () { return null; });
+                                if (!res.ok || !data || !data.ok) {
+                                    errToast((data && data.message) || 'Could not add to cart');
+                                    return;
+                                }
+                                fly();
+                                updateBadge(data.count);
+                                cartToast(data);
+                            } catch (_) {
+                                errToast('Network error, please try again');
+                            } finally {
+                                btn.classList.remove('opacity-70', 'pointer-events-none');
+                            }
+                        });
+                    })();
+                    </script>
                 @else
                     <button disabled class="btn w-full bg-gray-200 text-gray-500">Out of Stock</button>
                 @endif

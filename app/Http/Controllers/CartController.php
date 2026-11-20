@@ -16,22 +16,39 @@ class CartController extends Controller
         ]);
 
         $product = Product::active()->findOrFail($data['product_id']);
+        $qty = (int) ($data['quantity'] ?? 1);
 
         if ($product->manage_stock && $product->stock <= 0) {
+            if ($request->wantsJson()) {
+                return response()->json(['ok' => false, 'message' => 'This product is out of stock.'], 422);
+            }
+
             return back()->with('error', 'This product is out of stock.');
         }
 
-        cart()->add($product->id, (int) ($data['quantity'] ?? 1));
+        cart()->add($product->id, $qty);
 
-        // "Shop Now" adds the item and goes straight to checkout.
+        // "Shop Now" adds the item and goes straight to checkout (never AJAX).
         if ($request->input('action') === 'buy') {
             return redirect()->route('checkout');
+        }
+
+        // Add to Cart via AJAX: no reload, just the new cart count for the badge + animation.
+        if ($request->wantsJson()) {
+            return response()->json([
+                'ok' => true,
+                'count' => cart()->count(),
+                'name' => $product->name,
+                'image' => $product->thumbnail_url,
+                'qty' => $qty,
+                'total' => money($product->final_price * $qty),
+            ]);
         }
 
         return back()->with('cart_added', [
             'name' => $product->name,
             'image' => $product->thumbnail_url,
-            'qty' => (int) ($data['quantity'] ?? 1),
+            'qty' => $qty,
             'price' => $product->final_price,
         ]);
     }
