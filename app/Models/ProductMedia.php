@@ -12,12 +12,18 @@ class ProductMedia extends Model
     protected $table = 'product_media';
 
     protected $fillable = [
-        'product_id', 'type', 'file_path', 'url', 'sort_order',
+        'product_id', 'type', 'file_path', 'url', 'poster_path', 'sort_order',
     ];
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /** Resolved poster/thumbnail URL for an uploaded video (null when not set). */
+    public function getPosterUrlAttribute(): ?string
+    {
+        return $this->poster_path ? Storage::url($this->poster_path) : null;
     }
 
     /** Resolved source URL for front-end */

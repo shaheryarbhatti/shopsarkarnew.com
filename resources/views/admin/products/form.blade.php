@@ -43,7 +43,7 @@
             </div>
 
             {{-- Media --}}
-            <div class="card p-6" x-data="{ links: {{ old('youtube_links') ? json_encode(old('youtube_links')) : '[]' }} }">
+            <div class="card p-6" x-data="{ links: {{ old('youtube_links') ? json_encode(old('youtube_links')) : '[]' }}, videoRows: [{}] }">
                 <h2 class="section-title mb-4">Media</h2>
 
                 {{-- Thumbnail --}}
@@ -76,6 +76,9 @@
                                     @elseif($m->type === 'youtube')
                                         <img src="https://img.youtube.com/vi/{{ $m->youtube_id }}/hqdefault.jpg" class="h-full w-full object-cover">
                                         <span class="absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
+                                    @elseif($m->poster_url)
+                                        <img src="{{ $m->poster_url }}" class="h-full w-full object-cover">
+                                        <span class="absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
                                     @else
                                         <div class="flex h-full w-full items-center justify-center bg-brand-900 text-gold-400">▶ video</div>
                                     @endif
@@ -88,17 +91,60 @@
                     </div>
                 @endif
 
+                {{-- Existing videos: set / replace a thumbnail (poster) --}}
+                @php $videoMedia = $product->exists ? $product->media->where('type', 'video') : collect(); @endphp
+                @if($videoMedia->count())
+                    <div class="mb-5">
+                        <label class="label">Video Thumbnails</label>
+                        <div class="space-y-2">
+                            @foreach($videoMedia as $vm)
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 p-2">
+                                    <div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded bg-brand-900">
+                                        @if($vm->poster_url)
+                                            <img src="{{ $vm->poster_url }}" class="h-full w-full object-cover">
+                                        @else
+                                            <div class="flex h-full w-full items-center justify-center text-gold-400">▶</div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="mb-1 text-xs text-gray-500">{{ $vm->poster_path ? 'Replace thumbnail' : 'Set thumbnail for this video' }}</p>
+                                        <input type="file" name="media_poster[{{ $vm->id }}]" accept="image/*" class="text-sm">
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Upload images --}}
                 <div class="mb-4">
                     <label class="label">Add Images (multiple)</label>
                     <input type="file" name="gallery_images[]" accept="image/*" multiple class="text-sm">
                 </div>
 
-                {{-- Upload videos --}}
+                {{-- Upload videos (each with an optional thumbnail/poster) --}}
                 <div class="mb-4">
-                    <label class="label">Add Videos (mp4/webm, multiple)</label>
-                    <input type="file" name="gallery_videos[]" accept="video/*" multiple class="text-sm">
-                    <p class="mt-1 text-xs text-gray-400">Large videos may exceed PHP upload limits; or use YouTube links below.</p>
+                    <label class="label">Add Videos (mp4/webm)</label>
+                    <template x-for="(row, i) in videoRows" :key="i">
+                        <div class="mb-3 rounded-lg border border-gray-100 bg-gray-50/60 p-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-500" x-text="`Video ${i+1}`"></span>
+                                <button type="button" @click="videoRows.splice(i,1)" x-show="videoRows.length > 1" class="text-xs font-medium text-red-500 hover:underline">Remove</button>
+                            </div>
+                            <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <span class="mb-1 block text-xs text-gray-400">Video file</span>
+                                    <input type="file" :name="`video_rows[${i}][file]`" accept="video/*" class="text-sm">
+                                </div>
+                                <div>
+                                    <span class="mb-1 block text-xs text-gray-400">Thumbnail (image)</span>
+                                    <input type="file" :name="`video_rows[${i}][poster]`" accept="image/*" class="text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <button type="button" @click="videoRows.push({})" class="text-sm font-medium text-gold-600 hover:underline">+ Add another video</button>
+                    <p class="mt-1 text-xs text-gray-400">Large videos may exceed PHP upload limits; or use YouTube links below. The thumbnail shows in the product slider.</p>
                 </div>
 
                 {{-- YouTube links --}}

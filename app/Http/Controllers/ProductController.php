@@ -62,12 +62,15 @@ class ProductController extends Controller
                 if (! $m->file_path) {
                     continue;
                 }
+                // Prefer the video's own uploaded poster; fall back to the product thumbnail.
+                $poster = $m->poster_url
+                    ?? ($product->thumbnail ? Storage::url($product->thumbnail) : null);
                 $items[] = [
                     'type' => 'video',
                     'src' => Storage::url($m->file_path),
                     'youtube' => null,
-                    'thumb' => $product->thumbnail ? Storage::url($product->thumbnail) : null,
-                    'poster' => $product->thumbnail ? Storage::url($product->thumbnail) : null,
+                    'thumb' => $poster,
+                    'poster' => $poster,
                 ];
             } else { // image
                 if (! $m->file_path) {

@@ -95,6 +95,9 @@ class ProductController extends Controller
             if ($m->file_path) {
                 Storage::disk('public')->delete($m->file_path);
             }
+            if ($m->poster_path) {
+                Storage::disk('public')->delete($m->poster_path);
+            }
         }
         if ($product->thumbnail) {
             Storage::disk('public')->delete($product->thumbnail);
@@ -110,6 +113,9 @@ class ProductController extends Controller
 
         if ($media->file_path) {
             Storage::disk('public')->delete($media->file_path);
+        }
+        if ($media->poster_path) {
+            Storage::disk('public')->delete($media->poster_path);
         }
         $media->delete();
 
@@ -136,7 +142,9 @@ class ProductController extends Controller
             'meta_description' => ['nullable', 'string', 'max:500'],
             'thumbnail' => ['nullable', 'image', 'max:4096'],
             'gallery_images.*' => ['nullable', 'image', 'max:8192'],
-            'gallery_videos.*' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'],
+            'video_rows.*.file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'],
+            'video_rows.*.poster' => ['nullable', 'image', 'max:8192'],
+            'media_poster.*' => ['nullable', 'image', 'max:8192'],
             'youtube_links.*' => ['nullable', 'url'],
         ]);
 
@@ -146,7 +154,7 @@ class ProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured');
 
         // these aren't columns
-        unset($data['thumbnail'], $data['gallery_images'], $data['gallery_videos'], $data['youtube_links']);
+        unset($data['thumbnail'], $data['gallery_images'], $data['video_rows'], $data['media_poster'], $data['youtube_links']);
 
         return $data;
     }
@@ -167,16 +175,43 @@ class ProductController extends Controller
             ]);
         }
 
-        foreach ((array) $request->file('gallery_videos', []) as $file) {
-            if (! $file) {
+        // New videos, each optionally paired with its own thumbnail/poster.
+        foreach ((array) $request->file('video_rows', []) as $row) {
+            $file = $row['file'] ?? null;
+            if (! $file || ! $file->isValid()) {
                 continue;
             }
+
+            $poster = $row['poster'] ?? null;
+            $posterPath = ($poster && $poster->isValid())
+                ? $poster->store('products/videos/posters', 'public')
+                : null;
+
             ProductMedia::create([
                 'product_id' => $product->id,
                 'type' => 'video',
                 'file_path' => $file->store('products/videos', 'public'),
+                'poster_path' => $posterPath,
                 'sort_order' => ++$order,
             ]);
+        }
+
+        // Set / replace the poster of an already-uploaded video.
+        foreach ((array) $request->file('media_poster', []) as $mediaId => $posterFile) {
+            if (! $posterFile || ! $posterFile->isValid()) {
+                continue;
+            }
+
+            $media = $product->media()->where('id', $mediaId)->where('type', 'video')->first();
+            if (! $media) {
+                continue;
+            }
+
+            if ($media->poster_path) {
+                Storage::disk('public')->delete($media->poster_path);
+            }
+
+            $media->update(['poster_path' => $posterFile->store('products/videos/posters', 'public')]);
         }
 
         foreach ((array) $request->input('youtube_links', []) as $url) {
