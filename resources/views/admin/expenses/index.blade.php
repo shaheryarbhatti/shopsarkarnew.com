@@ -3,7 +3,9 @@
 <div x-data="{
     confirm: { open:false, name:'', action:'', title:'Delete Expense?' },
     edit: { open:false, id:null, title:'', category:'', amount:'', spent_on:'', note:'' }
-}">
+}"
+    @edit-expense.window="edit = { open:true, id:$event.detail.id, title:$event.detail.title, category:$event.detail.category, amount:$event.detail.amount, spent_on:$event.detail.spent_on, note:$event.detail.note }"
+    @delete-expense.window="confirm = { open:true, name:$event.detail.name, action:$event.detail.action, title:'Delete Expense?' }">
 
     {{-- Summary cards --}}
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -77,12 +79,33 @@
 
         {{-- List --}}
         <div class="lg:col-span-2 card overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-100 p-5">
-                <h2 class="section-title">Expense History</h2>
-                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">{{ $expenses->total() }} total</span>
+            <div class="border-b border-gray-100 p-5">
+                <div class="flex items-center justify-between">
+                    <h2 class="section-title">Expense History</h2>
+                    <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">{{ $count }} total</span>
+                </div>
+
+                {{-- Filters --}}
+                <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <select id="filter-category" class="input" aria-label="Filter by category">
+                        <option value="">All categories</option>
+                        @foreach($categories as $c)
+                            <option value="{{ $c }}">{{ $c }}</option>
+                        @endforeach
+                    </select>
+                    <input id="filter-from" type="date" class="input" aria-label="From date" title="From date">
+                    <input id="filter-to" type="date" class="input" aria-label="To date" title="To date">
+                    <input id="filter-search" type="search" class="input" placeholder="Search title or note…" aria-label="Search">
+                </div>
+
+                <div class="mt-3 flex items-center justify-between">
+                    <p class="text-sm text-gray-500">Filtered total: <span id="filtered-total" class="font-semibold text-red-500">—</span></p>
+                    <button id="filter-reset" type="button" class="text-xs font-semibold text-gold-600 transition hover:text-gold-700">Reset filters</button>
+                </div>
             </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+                <table id="expenses-table" class="w-full text-sm">
                     <thead class="bg-gray-50/80 text-left text-xs uppercase tracking-wider text-gray-500">
                         <tr>
                             <th class="px-5 py-3">Expense</th>
@@ -92,46 +115,8 @@
                             <th class="px-5 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($expenses as $e)
-                            <tr class="transition hover:bg-gold-500/[0.04]">
-                                <td class="px-5 py-3.5">
-                                    <p class="font-medium text-ink">{{ $e->title }}</p>
-                                    @if($e->note)<p class="text-xs text-gray-400">{{ \Illuminate\Support\Str::limit($e->note, 50) }}</p>@endif
-                                </td>
-                                <td class="px-5 py-3.5">
-                                    @if($e->category)
-                                        <span class="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700">{{ $e->category }}</span>
-                                    @else
-                                        <span class="text-gray-300">—</span>
-                                    @endif
-                                </td>
-                                <td class="px-5 py-3.5 text-gray-500">{{ $e->spent_on->format('d M Y') }}</td>
-                                <td class="px-5 py-3.5 font-semibold text-red-500">− {{ money($e->amount) }}</td>
-                                <td class="px-5 py-3.5">
-                                    <div class="flex items-center justify-end gap-1">
-                                        @can('expenses.manage')
-                                            <button type="button" title="Edit" aria-label="Edit"
-                                                    @click="edit = { open:true, id: {{ $e->id }}, title: @js($e->title), category: @js($e->category ?? ''), amount: '{{ $e->amount }}', spent_on: '{{ $e->spent_on->toDateString() }}', note: @js($e->note ?? '') }"
-                                                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gold-600 transition hover:bg-gold-500/10 hover:text-gold-700">
-                                                <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg>
-                                            </button>
-                                            <button type="button" title="Delete" aria-label="Delete"
-                                                    @click="confirm = { open:true, name: @js($e->title), action: @js(route('admin.expenses.destroy', $e)), title:'Delete Expense?' }"
-                                                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50 hover:text-red-600">
-                                                <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                                            </button>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="5" class="p-10 text-center text-gray-400">No expenses recorded yet.</td></tr>
-                        @endforelse
-                    </tbody>
                 </table>
             </div>
-            <div class="p-4">{{ $expenses->links() }}</div>
         </div>
     </div>
 
@@ -212,5 +197,106 @@
         </div>
     </div>
 </div>
+
+{{-- ============ Yajra DataTables: assets + init ============ --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<style>
+    /* Blend DataTables into the admin theme */
+    #expenses-table_wrapper table.dataTable { margin: 0 !important; border-collapse: collapse; }
+    #expenses-table_wrapper table.dataTable tbody td { padding: 0.875rem 1.25rem; border-top: 1px solid #f3f4f6; vertical-align: middle; }
+    #expenses-table_wrapper table.dataTable tbody tr:hover { background: rgba(201,162,75,0.04); }
+    #expenses-table_wrapper table.dataTable thead th { border-bottom: 1px solid #f3f4f6; position: relative; }
+    #expenses-table_wrapper table.dataTable thead th.sorting:after,
+    #expenses-table_wrapper table.dataTable thead th.sorting_asc:after,
+    #expenses-table_wrapper table.dataTable thead th.sorting_desc:after { right: 0.75rem; bottom: 0.6rem; opacity: 0.4; }
+    .dt-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding: 1rem 1.25rem; }
+    .dataTables_wrapper .dataTables_info { padding: 0 !important; font-size: 0.8rem; color: #6b7280; }
+    .dataTables_wrapper .dataTables_paginate { padding: 0 !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0.3rem 0.7rem; margin-left: 0.25rem; border-radius: 0.5rem; border: 1px solid #e5e7eb !important; background: #fff !important; color: #374151 !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: linear-gradient(to right,#d4a73a,#c9a24b) !important; border-color: #c9a24b !important; color: #081e18 !important; font-weight: 600; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { opacity: 0.4; }
+    .dataTables_wrapper .dataTables_processing { background: #fff; border: 1px solid #f3f4f6; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.08); color: #6b7280; font-weight: 500; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof $ === 'undefined' || !$.fn.DataTable) { return; }
+
+        const table = $('#expenses-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: @js(route('admin.expenses.data')),
+                data: function (d) {
+                    d.category = document.getElementById('filter-category').value;
+                    d.from = document.getElementById('filter-from').value;
+                    d.to = document.getElementById('filter-to').value;
+                }
+            },
+            columns: [
+                { data: 'title', name: 'title' },
+                { data: 'category', name: 'category' },
+                { data: 'spent_on', name: 'spent_on', searchable: false },
+                { data: 'amount', name: 'amount', searchable: false },
+                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
+            ],
+            order: [[2, 'desc']],
+            pageLength: 15,
+            lengthChange: false,
+            dom: 't<"dt-footer"ip>',
+            language: {
+                processing: 'Loading…',
+                emptyTable: 'No expenses recorded yet.',
+                zeroRecords: 'No expenses match your filters.',
+                info: 'Showing _START_–_END_ of _TOTAL_',
+                infoEmpty: 'Showing 0 expenses',
+                infoFiltered: '',
+                paginate: { previous: '‹', next: '›' }
+            },
+            drawCallback: function (settings) {
+                const json = settings.json;
+                const el = document.getElementById('filtered-total');
+                if (el && json && json.filtered_total !== undefined) {
+                    el.textContent = json.filtered_total;
+                }
+            }
+        });
+
+        // Search box (debounced) -> DataTables global search
+        let searchTimer;
+        document.getElementById('filter-search').addEventListener('keyup', function () {
+            const val = this.value;
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function () { table.search(val).draw(); }, 300);
+        });
+
+        // Category / date filters -> reload
+        ['filter-category', 'filter-from', 'filter-to'].forEach(function (id) {
+            document.getElementById(id).addEventListener('change', function () { table.draw(); });
+        });
+
+        // Reset filters
+        document.getElementById('filter-reset').addEventListener('click', function () {
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-from').value = '';
+            document.getElementById('filter-to').value = '';
+            document.getElementById('filter-search').value = '';
+            table.search('').draw();
+        });
+
+        // Row actions -> open the Alpine modals via window events
+        $('#expenses-table tbody').on('click', '.js-edit-expense', function () {
+            const data = $(this).data('expense');
+            window.dispatchEvent(new CustomEvent('edit-expense', { detail: data }));
+        });
+        $('#expenses-table tbody').on('click', '.js-delete-expense', function () {
+            window.dispatchEvent(new CustomEvent('delete-expense', {
+                detail: { name: this.getAttribute('data-name'), action: this.getAttribute('data-action') }
+            }));
+        });
+    });
+</script>
 
 </x-admin>

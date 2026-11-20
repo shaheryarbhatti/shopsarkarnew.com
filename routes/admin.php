@@ -103,6 +103,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Expenses
         Route::middleware('permission:expenses.view')->group(function () {
             Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+            Route::get('expenses/data', [ExpenseController::class, 'data'])->name('expenses.data');
         });
         Route::middleware('permission:expenses.manage')->group(function () {
             Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
