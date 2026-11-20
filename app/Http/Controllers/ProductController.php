@@ -55,8 +55,9 @@ class ProductController extends Controller
                     'type' => 'youtube',
                     'src' => null,
                     'youtube' => $yt,
-                    'thumb' => "https://img.youtube.com/vi/{$yt}/hqdefault.jpg",
-                    'poster' => null,
+                    // Custom uploaded thumbnail overrides YouTube's default.
+                    'thumb' => $m->poster_url ?? "https://img.youtube.com/vi/{$yt}/hqdefault.jpg",
+                    'poster' => $m->poster_url,
                 ];
             } elseif ($m->type === 'video') {
                 if (! $m->file_path) {

@@ -145,7 +145,8 @@ class ProductController extends Controller
             'video_rows.*.file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'],
             'video_rows.*.poster' => ['nullable', 'image', 'max:8192'],
             'media_poster.*' => ['nullable', 'image', 'max:8192'],
-            'youtube_links.*' => ['nullable', 'url'],
+            'youtube_rows.*.url' => ['nullable', 'url'],
+            'youtube_rows.*.poster' => ['nullable', 'image', 'max:8192'],
         ]);
 
         $data['contributor_price'] = $data['contributor_price'] ?? 0;
@@ -154,7 +155,7 @@ class ProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured');
 
         // these aren't columns
-        unset($data['thumbnail'], $data['gallery_images'], $data['video_rows'], $data['media_poster'], $data['youtube_links']);
+        unset($data['thumbnail'], $data['gallery_images'], $data['video_rows'], $data['media_poster'], $data['youtube_rows']);
 
         return $data;
     }
@@ -202,7 +203,7 @@ class ProductController extends Controller
                 continue;
             }
 
-            $media = $product->media()->where('id', $mediaId)->where('type', 'video')->first();
+            $media = $product->media()->where('id', $mediaId)->whereIn('type', ['video', 'youtube'])->first();
             if (! $media) {
                 continue;
             }
@@ -214,14 +215,23 @@ class ProductController extends Controller
             $media->update(['poster_path' => $posterFile->store('products/videos/posters', 'public')]);
         }
 
-        foreach ((array) $request->input('youtube_links', []) as $url) {
-            if (! trim((string) $url)) {
+        // YouTube links, each optionally paired with a custom thumbnail/poster.
+        foreach ((array) $request->input('youtube_rows', []) as $i => $row) {
+            $url = trim((string) ($row['url'] ?? ''));
+            if (! $url) {
                 continue;
             }
+
+            $poster = $request->file("youtube_rows.{$i}.poster");
+            $posterPath = ($poster && $poster->isValid())
+                ? $poster->store('products/videos/posters', 'public')
+                : null;
+
             ProductMedia::create([
                 'product_id' => $product->id,
                 'type' => 'youtube',
-                'url' => trim($url),
+                'url' => $url,
+                'poster_path' => $posterPath,
                 'sort_order' => ++$order,
             ]);
         }

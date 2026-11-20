@@ -43,7 +43,7 @@
             </div>
 
             {{-- Media --}}
-            <div class="card p-6" x-data="{ links: {{ old('youtube_links') ? json_encode(old('youtube_links')) : '[]' }}, videoRows: [{}] }">
+            <div class="card p-6" x-data="{ ytRows: {{ old('youtube_rows') ? json_encode(old('youtube_rows')) : '[{}]' }}, videoRows: [{}] }">
                 <h2 class="section-title mb-4">Media</h2>
 
                 {{-- Thumbnail --}}
@@ -74,7 +74,7 @@
                                     @if($m->type === 'image')
                                         <img src="{{ $m->src }}" class="h-full w-full object-cover">
                                     @elseif($m->type === 'youtube')
-                                        <img src="https://img.youtube.com/vi/{{ $m->youtube_id }}/hqdefault.jpg" class="h-full w-full object-cover">
+                                        <img src="{{ $m->poster_url ?: 'https://img.youtube.com/vi/'.$m->youtube_id.'/hqdefault.jpg' }}" class="h-full w-full object-cover">
                                         <span class="absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
                                     @elseif($m->poster_url)
                                         <img src="{{ $m->poster_url }}" class="h-full w-full object-cover">
@@ -91,23 +91,28 @@
                     </div>
                 @endif
 
-                {{-- Existing videos: set / replace a thumbnail (poster) --}}
-                @php $videoMedia = $product->exists ? $product->media->where('type', 'video') : collect(); @endphp
-                @if($videoMedia->count())
+                {{-- Existing videos / YouTube: set or replace a custom thumbnail (poster) --}}
+                @php $thumbMedia = $product->exists ? $product->media->whereIn('type', ['video', 'youtube']) : collect(); @endphp
+                @if($thumbMedia->count())
                     <div class="mb-5">
-                        <label class="label">Video Thumbnails</label>
+                        <label class="label">Video / YouTube Thumbnails</label>
                         <div class="space-y-2">
-                            @foreach($videoMedia as $vm)
+                            @foreach($thumbMedia as $vm)
                                 <div class="flex items-center gap-3 rounded-lg border border-gray-100 p-2">
                                     <div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded bg-brand-900">
                                         @if($vm->poster_url)
                                             <img src="{{ $vm->poster_url }}" class="h-full w-full object-cover">
+                                        @elseif($vm->type === 'youtube')
+                                            <img src="https://img.youtube.com/vi/{{ $vm->youtube_id }}/hqdefault.jpg" class="h-full w-full object-cover">
                                         @else
                                             <div class="flex h-full w-full items-center justify-center text-gold-400">▶</div>
                                         @endif
                                     </div>
                                     <div class="flex-1">
-                                        <p class="mb-1 text-xs text-gray-500">{{ $vm->poster_path ? 'Replace thumbnail' : 'Set thumbnail for this video' }}</p>
+                                        <p class="mb-1 text-xs text-gray-500">
+                                            {{ $vm->type === 'youtube' ? 'YouTube' : 'Video' }} —
+                                            {{ $vm->poster_path ? 'replace custom thumbnail' : 'set a custom thumbnail' }}
+                                        </p>
                                         <input type="file" name="media_poster[{{ $vm->id }}]" accept="image/*" class="text-sm">
                                     </div>
                                 </div>
@@ -147,16 +152,23 @@
                     <p class="mt-1 text-xs text-gray-400">Large videos may exceed PHP upload limits; or use YouTube links below. The thumbnail shows in the product slider.</p>
                 </div>
 
-                {{-- YouTube links --}}
+                {{-- YouTube links (each with an optional custom thumbnail) --}}
                 <div>
                     <label class="label">YouTube Links</label>
-                    <template x-for="(link, i) in links" :key="i">
-                        <div class="mb-2 flex gap-2">
-                            <input type="url" :name="`youtube_links[]`" x-model="links[i]" placeholder="https://youtube.com/watch?v=..." class="input">
-                            <button type="button" @click="links.splice(i,1)" class="rounded-lg bg-red-50 px-3 text-red-500">✕</button>
+                    <template x-for="(row, i) in ytRows" :key="i">
+                        <div class="mb-3 rounded-lg border border-gray-100 bg-gray-50/60 p-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-500" x-text="`YouTube ${i+1}`"></span>
+                                <button type="button" @click="ytRows.splice(i,1)" x-show="ytRows.length > 1" class="text-xs font-medium text-red-500 hover:underline">Remove</button>
+                            </div>
+                            <input type="url" :name="`youtube_rows[${i}][url]`" x-model="ytRows[i].url" placeholder="https://youtube.com/watch?v=..." class="input mt-2">
+                            <div class="mt-2">
+                                <span class="mb-1 block text-xs text-gray-400">Custom thumbnail (optional — otherwise YouTube's own is used)</span>
+                                <input type="file" :name="`youtube_rows[${i}][poster]`" accept="image/*" class="text-sm">
+                            </div>
                         </div>
                     </template>
-                    <button type="button" @click="links.push('')" class="text-sm font-medium text-gold-600 hover:underline">+ Add YouTube link</button>
+                    <button type="button" @click="ytRows.push({ url: '' })" class="text-sm font-medium text-gold-600 hover:underline">+ Add YouTube link</button>
                 </div>
             </div>
         </div>
