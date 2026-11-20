@@ -86,7 +86,7 @@
                 {{-- Main viewer --}}
                 <div class="relative aspect-square w-full overflow-hidden rounded-2xl bg-white ring-1 ring-black/5">
                     <template x-for="(m, i) in media" :key="i">
-                        <div x-show="active === i" class="absolute inset-0">
+                        <div :class="{ 'hidden': active !== i }" class="absolute inset-0">
 
                             {{-- Image with hover zoom --}}
                             <template x-if="m.type === 'image'">
