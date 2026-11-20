@@ -1,5 +1,20 @@
 <x-admin title="Dashboard" active="dashboard">
 
+    {{-- New / pending orders alert (orders placed but not yet completed) --}}
+    @if(($stats['active_orders'] ?? 0) > 0)
+        <div class="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-5">
+            <span class="relative flex h-6 w-6 flex-shrink-0 text-red-500">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+                <span class="absolute right-0 top-0 h-2.5 w-2.5 animate-ping rounded-full bg-red-500"></span>
+            </span>
+            <div class="flex-1">
+                <p class="font-semibold text-red-800">{{ $stats['active_orders'] }} order(s) need your attention</p>
+                <p class="text-sm text-red-700">New orders have been placed and are not completed yet. Review and process them.</p>
+                <a href="{{ route('admin.orders.index') }}" class="mt-2 inline-block text-sm font-semibold text-red-800 underline">View orders →</a>
+            </div>
+        </div>
+    @endif
+
     {{-- Matured withdrawal alert --}}
     @if($maturedWithdrawals->count())
         <div class="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">

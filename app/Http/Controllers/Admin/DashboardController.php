@@ -26,6 +26,7 @@ class DashboardController extends Controller
         $stats = [
             'orders' => Order::count(),
             'pending_orders' => Order::where('status', 'pending')->count(),
+            'active_orders' => Order::whereNotIn('status', ['completed', 'cancelled'])->count(),
             'revenue' => $revenue,
             'expenses' => $expenses,
             'commissions' => $commissions,

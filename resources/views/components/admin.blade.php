@@ -32,6 +32,12 @@
         ]],
     ];
     $user = auth()->user();
+
+    // Orders that have been placed but are not completed yet (and not cancelled).
+    // Drives the red notification badge in the topbar on every admin page.
+    $pendingOrdersCount = $user->can('orders.view')
+        ? \App\Models\Order::whereNotIn('status', ['completed', 'cancelled'])->count()
+        : 0;
 @endphp
 
 <!DOCTYPE html>
@@ -126,6 +132,23 @@
                 </div>
                 <div class="flex items-center gap-4" x-data="{ menu:false }">
                     <a href="{{ route('home') }}" target="_blank" class="hidden rounded-full bg-brand-50 px-4 py-2 text-sm font-medium text-brand-700 transition hover:bg-brand-100 sm:block">View Site ↗</a>
+
+                    {{-- Orders notification bell with live pending count --}}
+                    @can('orders.view')
+                        <a href="{{ route('admin.orders.index') }}" title="{{ $pendingOrdersCount }} order(s) to process"
+                           class="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+                            </svg>
+                            @if($pendingOrdersCount > 0)
+                                <span class="absolute right-0 top-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-white">
+                                    {{ $pendingOrdersCount > 99 ? '99+' : $pendingOrdersCount }}
+                                </span>
+                                <span class="absolute right-0.5 top-1 h-4 w-4 animate-ping rounded-full bg-red-400/60"></span>
+                            @endif
+                        </a>
+                    @endcan
+
                     <div class="relative">
                         <button @click="menu=!menu" class="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-3 transition hover:bg-gray-100">
                             <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 text-sm font-bold text-gold-400 ring-2 ring-gold-500/30">{{ strtoupper(substr($user->name,0,1)) }}</span>
