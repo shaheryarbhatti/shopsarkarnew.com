@@ -107,9 +107,9 @@
 
                             {{-- YouTube --}}
                             <template x-if="m.type === 'youtube'">
-                                <iframe :src="active === i ? ('https://www.youtube.com/embed/' + m.youtube) : ''"
+                                <iframe :src="active === i ? ('https://www.youtube.com/embed/' + m.youtube + '?playsinline=1&rel=0') : ''"
                                         class="h-full w-full" frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                                         allowfullscreen></iframe>
                             </template>
                         </div>
