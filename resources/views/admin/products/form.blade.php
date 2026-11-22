@@ -64,31 +64,78 @@
                     <p x-show="removed" x-cloak class="mt-1 text-xs text-red-500">Thumbnail will be removed on save.</p>
                 </div>
 
-                {{-- Existing gallery --}}
+                {{-- Existing gallery (drag to reorder the slider) --}}
                 @if($product->exists && $product->media->count())
                     <div class="mb-5">
-                        <label class="label">Current Gallery</label>
-                        <div class="grid grid-cols-4 gap-3 sm:grid-cols-6">
+                        <div class="mb-1 flex items-center justify-between">
+                            <label class="label mb-0">Current Gallery</label>
+                            <span class="flex items-center gap-1.5 text-xs text-gray-400">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"/></svg>
+                                Drag to reorder
+                                <span id="gallery-order-status" class="ml-1"></span>
+                            </span>
+                        </div>
+                        <div id="gallery-sortable" data-reorder-url="{{ route('admin.products.media.reorder', $product) }}"
+                             class="grid grid-cols-4 gap-3 sm:grid-cols-6">
                             @foreach($product->media as $m)
-                                <div class="group relative aspect-square overflow-hidden rounded-lg ring-1 ring-black/10">
+                                <div data-media-id="{{ $m->id }}" title="Drag to reorder"
+                                     class="group relative aspect-square cursor-move overflow-hidden rounded-lg ring-1 ring-black/10">
                                     @if($m->type === 'image')
-                                        <img src="{{ $m->src }}" class="h-full w-full object-cover">
+                                        <img src="{{ $m->src }}" class="pointer-events-none h-full w-full object-cover">
                                     @elseif($m->type === 'youtube')
-                                        <img src="{{ $m->poster_url ?: 'https://img.youtube.com/vi/'.$m->youtube_id.'/hqdefault.jpg' }}" class="h-full w-full object-cover">
-                                        <span class="absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
+                                        <img src="{{ $m->poster_url ?: 'https://img.youtube.com/vi/'.$m->youtube_id.'/hqdefault.jpg' }}" class="pointer-events-none h-full w-full object-cover">
+                                        <span class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
                                     @elseif($m->poster_url)
-                                        <img src="{{ $m->poster_url }}" class="h-full w-full object-cover">
-                                        <span class="absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
+                                        <img src="{{ $m->poster_url }}" class="pointer-events-none h-full w-full object-cover">
+                                        <span class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/30 text-white">▶</span>
                                     @else
-                                        <div class="flex h-full w-full items-center justify-center bg-brand-900 text-gold-400">▶ video</div>
+                                        <div class="pointer-events-none flex h-full w-full items-center justify-center bg-brand-900 text-gold-400">▶ video</div>
                                     @endif
                                     <button type="button"
                                             onclick="if(confirm('Remove this media?')) document.getElementById('delm-{{ $m->id }}').submit()"
-                                            class="absolute right-1 top-1 rounded-full bg-red-600 px-1.5 text-xs text-white opacity-0 group-hover:opacity-100">✕</button>
+                                            class="no-drag absolute right-1 top-1 rounded-full bg-red-600 px-1.5 text-xs text-white opacity-0 group-hover:opacity-100">✕</button>
                                 </div>
                             @endforeach
                         </div>
                     </div>
+
+                    {{-- Drag & drop reorder (SortableJS). Saves the new order instantly. --}}
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js"></script>
+                    <script>
+                    (function () {
+                        var grid = document.getElementById('gallery-sortable');
+                        if (!grid || typeof Sortable === 'undefined' || grid.dataset.sortInit) return;
+                        grid.dataset.sortInit = '1';
+                        var status = document.getElementById('gallery-order-status');
+                        var tokenEl = grid.closest('form') ? grid.closest('form').querySelector('input[name="_token"]') : null;
+
+                        function setStatus(text, cls) { if (status) { status.textContent = text; status.className = 'ml-1 font-medium ' + cls; } }
+
+                        Sortable.create(grid, {
+                            animation: 150,
+                            filter: '.no-drag',
+                            preventOnFilter: false,
+                            ghostClass: 'opacity-40',
+                            onEnd: function () {
+                                var order = Array.from(grid.querySelectorAll('[data-media-id]')).map(function (el) { return parseInt(el.getAttribute('data-media-id')); });
+                                setStatus('Saving…', 'text-gray-400');
+                                fetch(grid.getAttribute('data-reorder-url'), {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'X-CSRF-TOKEN': tokenEl ? tokenEl.value : ''
+                                    },
+                                    body: JSON.stringify({ order: order })
+                                })
+                                .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+                                .then(function () { setStatus('✓ Order saved', 'text-emerald-600'); })
+                                .catch(function () { setStatus('Could not save order', 'text-red-500'); });
+                            }
+                        });
+                    })();
+                    </script>
                 @endif
 
                 {{-- Existing videos / YouTube: set or replace a custom thumbnail (poster) --}}

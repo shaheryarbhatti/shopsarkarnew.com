@@ -40,6 +40,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
             Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update');
             Route::delete('products/{product}/media/{media}', [ProductController::class, 'deleteMedia'])->name('products.media.delete');
+            Route::post('products/{product}/media/reorder', [ProductController::class, 'reorderMedia'])->name('products.media.reorder');
         });
         Route::middleware('permission:products.delete')->group(function () {
             Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');

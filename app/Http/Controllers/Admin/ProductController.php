@@ -122,6 +122,27 @@ class ProductController extends Controller
         return back()->with('success', 'Media removed.');
     }
 
+    /** Persist a new gallery order (drag & drop) from an array of media ids. */
+    public function reorderMedia(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'order' => ['required', 'array'],
+            'order.*' => ['integer'],
+        ]);
+
+        // Only touch media that actually belong to this product.
+        $ownIds = $product->media()->pluck('id')->all();
+        $position = 0;
+
+        foreach ($data['order'] as $id) {
+            if (in_array((int) $id, $ownIds, true)) {
+                $product->media()->where('id', $id)->update(['sort_order' => ++$position]);
+            }
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
     // ---------- helpers ----------
 
     protected function validateData(Request $request, ?Product $product = null): array
