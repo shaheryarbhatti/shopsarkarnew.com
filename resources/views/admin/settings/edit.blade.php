@@ -10,6 +10,7 @@
             'affiliate' => ['Affiliate Program', 'Commissions, withdrawals & maturity', 'M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'],
             'reviews'   => ['Review Videos', 'Logo watermark on your YouTube review videos', 'M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6'],
             'marketing' => ['Marketing & Pixels', 'Facebook Pixel, TikTok Pixel & tracking codes', 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z'],
+            'emails'    => ['Order Emails', 'Turn order confirmation emails on or off', 'M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75'],
         ];
         $labels = [
             'site_name'=>'Site Name','site_logo'=>'Header Logo','footer_logo'=>'Footer Logo','favicon'=>'Favicon (auto 512×512)','currency_symbol'=>'Currency Symbol',
@@ -27,6 +28,7 @@
             'earning_maturity_days'=>'Earning Maturity (days)','affiliate_terms'=>'Program Description',
             'youtube_watermark'=>'Watermark Logo (transparent PNG, ≤1MB)','youtube_watermark_position'=>'Watermark Corner',
             'facebook_pixel_id'=>'Facebook Pixel ID','tiktok_pixel_id'=>'TikTok Pixel ID','custom_head_code'=>'Custom Head Code (advanced)',
+            'email_customer_order'=>'Send order confirmation to customer','email_admin_order'=>'Send new-order alert to admin',
         ];
     @endphp
 

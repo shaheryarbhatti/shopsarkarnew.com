@@ -67,6 +67,10 @@ class SettingController extends Controller
                 'tiktok_pixel_id' => 'text',
                 'custom_head_code' => 'textarea',
             ],
+            'emails' => [
+                'email_customer_order' => 'boolean',
+                'email_admin_order' => 'boolean',
+            ],
         ];
     }
 

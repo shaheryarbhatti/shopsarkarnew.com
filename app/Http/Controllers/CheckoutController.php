@@ -138,18 +138,20 @@ class CheckoutController extends Controller
         try {
             $order->loadMissing('items');
 
-            // Customer confirmation
-            if ($order->email) {
+            // Customer confirmation (toggle in Settings → Order Emails; default on).
+            if ($order->email && setting_bool('email_customer_order', true)) {
                 Mail::to($order->email)->send(new OrderPlaced($order));
             }
 
             // Admin notification → the super-admin's account email (users table),
             // falling back to the store contact email, then the from address.
-            $adminEmail = User::role('super-admin')->value('email')
-                ?: setting('contact_email')
-                ?: config('mail.from.address');
-            if ($adminEmail) {
-                Mail::to($adminEmail)->send(new NewOrderNotification($order));
+            if (setting_bool('email_admin_order', true)) {
+                $adminEmail = User::role('super-admin')->value('email')
+                    ?: setting('contact_email')
+                    ?: config('mail.from.address');
+                if ($adminEmail) {
+                    Mail::to($adminEmail)->send(new NewOrderNotification($order));
+                }
             }
         } catch (\Throwable $e) {
             report($e); // logged, but the customer still gets their success page
