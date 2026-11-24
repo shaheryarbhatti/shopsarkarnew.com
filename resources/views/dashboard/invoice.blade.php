@@ -21,10 +21,29 @@
 </head>
 <body>
 <div class="wrap">
+    @php
+        // Embed the store logo as a base64 data URI so dompdf renders it reliably
+        // (prefer header logo, fall back to footer logo). Falls back to the name.
+        $logoData = null;
+        foreach (['site_logo', 'footer_logo'] as $logoKey) {
+            $logoRel = setting($logoKey);
+            if ($logoRel && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoRel)) {
+                $bytes = \Illuminate\Support\Facades\Storage::disk('public')->get($logoRel);
+                $ext = strtolower(pathinfo($logoRel, PATHINFO_EXTENSION));
+                $mime = $ext === 'svg' ? 'image/svg+xml' : ($ext === 'jpg' ? 'image/jpeg' : 'image/' . $ext);
+                $logoData = 'data:' . $mime . ';base64,' . base64_encode($bytes);
+                break;
+            }
+        }
+    @endphp
     <div class="head">
         <div>
-            <div class="brand">{{ setting('site_name', 'SHOP') }}</div>
-            <div class="muted">{{ setting('contact_email') }}</div>
+            @if($logoData)
+                <img src="{{ $logoData }}" alt="{{ setting('site_name', 'Shop') }}" style="max-height:56px;max-width:220px;">
+            @else
+                <div class="brand">{{ setting('site_name', 'SHOP') }}</div>
+                <div class="muted">{{ setting('contact_email') }}</div>
+            @endif
         </div>
         <div class="right">
             <div style="font-size:20px;font-weight:bold;">INVOICE</div>
