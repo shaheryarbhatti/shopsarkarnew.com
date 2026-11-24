@@ -55,6 +55,34 @@ if (! function_exists('acl_permissions')) {
     }
 }
 
+if (! function_exists('page_content')) {
+    /**
+     * Render CMS page content, replacing {{ token }} placeholders with live
+     * store settings so contact details etc. stay in sync with Settings.
+     *
+     * Supported tokens: contact_email, contact_phone, site_name, currency_symbol.
+     */
+    function page_content(?string $content): string
+    {
+        if (! $content) {
+            return '';
+        }
+
+        $tokens = [
+            'contact_email'   => (string) setting('contact_email'),
+            'contact_phone'   => (string) setting('contact_phone'),
+            'site_name'       => (string) setting('site_name', 'Shop'),
+            'currency_symbol' => (string) setting('currency_symbol', 'Rs.'),
+        ];
+
+        return preg_replace_callback('/\{\{\s*([a-z_]+)\s*\}\}/i', function ($m) use ($tokens) {
+            $key = strtolower($m[1]);
+            // Unknown token → leave it as-is so nothing silently disappears.
+            return array_key_exists($key, $tokens) ? e($tokens[$key]) : $m[0];
+        }, $content);
+    }
+}
+
 if (! function_exists('setting_file')) {
     /**
      * Resolve a stored file setting to a public URL.

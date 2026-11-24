@@ -6,7 +6,7 @@
         <div class="mx-auto max-w-3xl">
             <h1 class="mb-8 font-serif text-3xl font-bold text-ink lg:text-4xl">{{ $page->title }}</h1>
             <div class="product-desc max-w-none">
-                {!! $page->content !!}
+                {!! page_content($page->content) !!}
             </div>
         </div>
     </section>
