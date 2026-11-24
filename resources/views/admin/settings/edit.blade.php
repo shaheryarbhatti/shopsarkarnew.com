@@ -11,6 +11,7 @@
             'reviews'   => ['Review Videos', 'Logo watermark on your YouTube review videos', 'M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6'],
             'marketing' => ['Marketing & Pixels', 'Facebook Pixel, TikTok Pixel & tracking codes', 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z'],
             'emails'    => ['Order Emails', 'Turn order confirmation emails on or off', 'M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75'],
+            'social'    => ['Social Media', 'Links shown as icons in the site footer', 'M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z'],
         ];
         $labels = [
             'site_name'=>'Site Name','site_logo'=>'Header Logo','footer_logo'=>'Footer Logo','favicon'=>'Favicon (auto 512×512)','currency_symbol'=>'Currency Symbol',
@@ -29,6 +30,7 @@
             'youtube_watermark'=>'Watermark Logo (transparent PNG, ≤1MB)','youtube_watermark_position'=>'Watermark Corner',
             'facebook_pixel_id'=>'Facebook Pixel ID','tiktok_pixel_id'=>'TikTok Pixel ID','custom_head_code'=>'Custom Head Code (advanced)',
             'email_customer_order'=>'Send order confirmation to customer','email_admin_order'=>'Send new-order alert to admin',
+            'social_facebook'=>'Facebook Page URL','social_instagram'=>'Instagram Profile URL','social_tiktok'=>'TikTok Profile URL','social_youtube'=>'YouTube Channel URL',
         ];
     @endphp
 
@@ -81,6 +83,15 @@
                     </div>
                 @endif
 
+                @if($group === 'social')
+                    <div class="flex items-start gap-3 rounded-xl border border-gold-200 bg-gold-50/60 p-4 text-sm text-gray-600">
+                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                        <span>
+                            Paste the <strong>full URL</strong> of each profile (e.g. <code class="rounded bg-white px-1">https://facebook.com/yourpage</code>). Each one you fill shows as an <strong>elegant icon</strong> in the site footer. Leave a field empty to hide that icon.
+                        </span>
+                    </div>
+                @endif
+
                 @if($group === 'auth')
                     <div class="flex items-start gap-3 rounded-xl border border-gold-200 bg-gold-50/60 p-4 text-sm text-gray-600">
                         <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
@@ -129,6 +140,10 @@
                                 </span>
                                 <span class="text-sm text-gray-600" x-text="on ? 'Enabled' : 'Disabled'"></span>
                             </label>
+
+                        @elseif(str_starts_with($key, 'social_'))
+                            @php $ph = ['social_facebook'=>'https://facebook.com/yourpage','social_instagram'=>'https://instagram.com/yourhandle','social_tiktok'=>'https://tiktok.com/@yourhandle','social_youtube'=>'https://youtube.com/@yourchannel'][$key] ?? 'https://'; @endphp
+                            <input type="url" name="{{ $key }}" class="input max-w-lg" value="{{ $values[$key] ?? '' }}" placeholder="{{ $ph }}">
 
                         @elseif($type === 'textarea')
                             <textarea name="{{ $key }}" rows="3" class="input {{ str_contains($key,'_ur') ? 'urdu' : '' }}">{{ $values[$key] ?? '' }}</textarea>

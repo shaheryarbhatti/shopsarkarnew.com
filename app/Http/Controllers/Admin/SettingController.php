@@ -71,6 +71,12 @@ class SettingController extends Controller
                 'email_customer_order' => 'boolean',
                 'email_admin_order' => 'boolean',
             ],
+            'social' => [
+                'social_facebook' => 'text',
+                'social_instagram' => 'text',
+                'social_tiktok' => 'text',
+                'social_youtube' => 'text',
+            ],
         ];
     }
 
@@ -104,6 +110,10 @@ class SettingController extends Controller
             'hero_video' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm', 'max:102400'],
             'youtube_watermark' => ['nullable', 'image', 'mimes:png', 'max:1024'],
             'youtube_watermark_position' => ['nullable', 'in:topLeft,topRight,bottomLeft,bottomRight'],
+            'social_facebook' => ['nullable', 'url', 'max:255'],
+            'social_instagram' => ['nullable', 'url', 'max:255'],
+            'social_tiktok' => ['nullable', 'url', 'max:255'],
+            'social_youtube' => ['nullable', 'url', 'max:255'],
         ], [
             'youtube_watermark.mimes' => 'The watermark must be a transparent PNG image.',
             'youtube_watermark.max' => 'The watermark PNG must be 1 MB or smaller (YouTube limit).',
