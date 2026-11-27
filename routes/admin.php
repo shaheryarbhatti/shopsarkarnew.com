@@ -16,7 +16,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WithdrawalController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->name('admin.')->group(function () {
+// Admin panel lives under a non-obvious URL prefix (not the guessable "/admin").
+// Route NAMES stay "admin.*" so every route('admin.*') link keeps working.
+Route::prefix('shop-sarkar-admin')->name('admin.')->group(function () {
 
     // Auth (public)
     Route::get('login', [AuthController::class, 'show'])->name('login');

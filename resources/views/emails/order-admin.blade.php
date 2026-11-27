@@ -57,7 +57,7 @@
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
         <tr>
             <td align="center">
-                <a href="{{ $site.'/admin/orders/'.$order->id }}"
+                <a href="{{ route('admin.orders.show', $order->id) }}"
                    style="display:inline-block; background-color:#081e18; color:#c9a24b; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; text-decoration:none; padding:14px 34px; border-radius:9999px;">
                     View in Admin Panel &rarr;
                 </a>
